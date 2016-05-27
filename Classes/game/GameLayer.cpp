@@ -29,7 +29,7 @@ Scene* GameLayer::createScene(Vegolution* game)
     // Scene is an autoreleased object
     Scene* scene {Scene::createWithPhysics()};
     scene->getPhysicsWorld()->setAutoStep(false);
-    //scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+    scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
     
     // Layer is an autoreleased object
     GameLayer* layer {GameLayer::create(game)};

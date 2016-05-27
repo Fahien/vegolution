@@ -2,20 +2,22 @@
 
 USING_NS_CC;
 
-Terrain2D::Terrain2D(MainActor* actor)
-: actor_ {actor}
+Terrain2D::Terrain2D(MainActor* actor, float width)
+: physicsBody_ {nullptr}
+, actor_       {actor}
+, width_       {width}
 {}
 
-Terrain2D* Terrain2D::create(MainActor* actor)
+Terrain2D* Terrain2D::create(MainActor* actor, Size& size)
 {
     // Construct
-    Terrain2D* terrain {new (std::nothrow) Terrain2D(actor)};
+    Terrain2D* terrain {new (std::nothrow) Terrain2D{actor, size.width}};
 
     // Initialize
     if (terrain && terrain->init()) {
         terrain->autorelease();
         // Hook template method for creating physics body
-        terrain->createPhysicsBody();
+        terrain->createPhysicsBody(size);
         return terrain;
     }
 
@@ -23,11 +25,10 @@ Terrain2D* Terrain2D::create(MainActor* actor)
     return nullptr;
 }
 
-void Terrain2D::createPhysicsBody()
+void Terrain2D::createPhysicsBody(Size size)
 {
-    Size size {Director::getInstance()->getVisibleSize()};
+    size.width *= 3;
     size.height /= 3;
-    width_ = size.width;
     // Create material
     PhysicsMaterial material {1.0f, 0.2f, 0.5f};
     // Create physics body
@@ -38,11 +39,13 @@ void Terrain2D::createPhysicsBody()
 
 void Terrain2D::update(float delta)
 {
+    // Get actual X
     float x {this->getPositionX()};
+    // Get actor X
     float actorX {actor_->getPositionX() + actor_->getVehicle()->getPositionX()};
-    if (actorX > x) {
-        if (actorX - x > width_ / 2) {
-            this->setPositionX(x + width_);
-        }
+    if (actorX - x > 0) {
+        log("Moving terrain from %f", x);
+        this->setPositionX(x + width_);
+        log("To %f", this->getPositionX());
     }
 }

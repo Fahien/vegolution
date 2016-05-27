@@ -63,7 +63,7 @@ MainActor* GameFactory::createActor()
 Terrain2D* GameFactory::createTerrain()
 {
     if (terrain_ == nullptr) {
-        terrain_ = Terrain2D::create(this->createActor());    
+        terrain_ = Terrain2D::create(this->createActor(), visibleSize_);    
         terrain_->setPosition(center_.x, origin_.y);
         terrain_->scheduleUpdate();
     }

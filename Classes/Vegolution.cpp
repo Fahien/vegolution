@@ -4,7 +4,9 @@
 
 USING_NS_CC;
 
-static Size designResolutionSize { 1200,  720};
+//static Size designResolutionSize { 1200,  720};
+static Size designResolutionSize { 570,  320};
+static Size windowSize           { 570, 320};
 
 // Information about resources
 typedef struct tagResource {
@@ -64,7 +66,7 @@ bool Vegolution::applicationDidFinishLaunching()
     GLView* glview {director_->getOpenGLView()};
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("Prototwo", Rect{0, 0, designResolutionSize.width, designResolutionSize.height});
+        glview = GLViewImpl::createWithRect("Prototwo", Rect{0, 0, windowSize.width, windowSize.height});
 #else
         glview = GLViewImpl::create("Prototwo");
 #endif
