@@ -10,6 +10,7 @@
 #include "model/Terrain2D.h"
 #include "model/Parallax.h"
 #include "hud/BodyView.h"
+#include "hud/ShotView.h"
 
 class GameFactory
 {
@@ -19,13 +20,16 @@ public:
 
     Enemy* createEnemy();
 
-    Vehicle*         createVehicle(std::string name);
+    Vehicle* createVehicle(std::string name);
+    Bullet*  createBullet(std::string name);
+
     MainActor*       createActor();
     Terrain2D*       createTerrain();
     Parallax*        createParallax();
     cocos2d::Sprite* createBoard();
 
     BodyView* createBodyMenu();
+    ShotView* createShotMenu();
 
 protected:
     void createEnemies();
@@ -40,6 +44,10 @@ private:
     float            offsetX_;
 
     std::vector<Enemy*> enemies_;
+    std::vector<Enemy*> enemyPool_;
+
+    std::vector<Bullet*> bullets_;
+
 
     MainActor*       actor_     {nullptr};
     Terrain2D*       terrain_   {nullptr};
@@ -47,6 +55,7 @@ private:
     cocos2d::Sprite* board_     {nullptr};
 
     BodyView* body_ {nullptr};
+    ShotView* shot_ {nullptr};
 };
 
 #endif // __GAME_FACTORY_H__

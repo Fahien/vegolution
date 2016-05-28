@@ -53,7 +53,7 @@ void MainActor::setVehicle(Vehicle* vehicle)
     this->addChild(vehicle);
 }
 
-void MainActor::setWeapon(Weapon* weapon)
+void MainActor::setBullet(Bullet* bullet)
 {
-    weapon_ = weapon;
+    bullet_ = bullet;
 }

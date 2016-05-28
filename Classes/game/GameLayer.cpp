@@ -29,7 +29,7 @@ Scene* GameLayer::createScene(Vegolution* game)
     // Scene is an autoreleased object
     Scene* scene {Scene::createWithPhysics()};
     scene->getPhysicsWorld()->setAutoStep(false);
-    scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+    //scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
     
     // Layer is an autoreleased object
     GameLayer* layer {GameLayer::create(game)};
@@ -67,6 +67,10 @@ bool GameLayer::init()
     log("Getting body");
     BodyView* body {factory_.createBodyMenu()};
     menuLayer_->addChild(body, 6);
+    // Get the shot menu
+    log("Getting shot");
+    ShotView* shot {factory_.createShotMenu()};
+    menuLayer_->addChild(shot, 7);
     // Get the board
     board_ = factory_.createBoard();
     menuLayer_->addChild(board_, 8);

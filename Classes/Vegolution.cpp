@@ -66,9 +66,9 @@ bool Vegolution::applicationDidFinishLaunching()
     GLView* glview {director_->getOpenGLView()};
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("Prototwo", Rect{0, 0, windowSize.width, windowSize.height});
+        glview = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
 #else
-        glview = GLViewImpl::create("Prototwo");
+        glview = GLViewImpl::create("Vegolution");
 #endif
         director_->setOpenGLView(glview);
     }
@@ -81,7 +81,8 @@ bool Vegolution::applicationDidFinishLaunching()
 
     // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::FIXED_HEIGHT);
-    auto frameSize = glview->getFrameSize();
+
+    Size frameSize {glview->getFrameSize()};
 	log("Frame size is %fx%f", frameSize.width, frameSize.height);
 
 	// Vector to build a list of resources paths

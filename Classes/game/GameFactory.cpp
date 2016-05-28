@@ -31,24 +31,25 @@ void GameFactory::createEnemies()
     std::vector<std::string> names {data_->getEnemies()};
     // Create enemies
     for (std::string name : names) {
-        Enemy* enemy = Enemy::create("enemy/" + name + ".png");
+        Enemy* enemy {Enemy::create("enemy/" + name + ".png")};
         enemies_.push_back(enemy);
+        enemyPool_.push_back(enemy);
     }
 }
 
 Enemy* GameFactory::createEnemy()
 {
-    if (enemies_.empty()) return nullptr;
+    if (enemyPool_.empty()) return nullptr;
 
-    Enemy* enemy {enemies_.back()};
-    enemies_.pop_back();
+    Enemy* enemy {enemyPool_.back()};
+    enemyPool_.pop_back();
     return enemy;
 }
 
 Vehicle* GameFactory::createVehicle(std::string vehicleName)
 {
     // Create the vehicle
-    std::string name = StringUtils::format("vehicle/%s/%s.png", vehicleName.c_str(), vehicleName.c_str());
+    std::string name {StringUtils::format("vehicle/%s/%s.png", vehicleName.c_str(), vehicleName.c_str())};
     Vehicle* vehicle {Vehicle::create(name, 10.0f, 10.0f)};
     vehicle->setPositionX(-offsetX_);
     vehicle->getPhysicsBody()->setGravityEnable(true);
@@ -69,6 +70,14 @@ Vehicle* GameFactory::createVehicle(std::string vehicleName)
     return vehicle;
 }
 
+Bullet* GameFactory::createBullet(std::string bulletName)
+{
+    // Create the bullet
+    std::string name {StringUtils::format("misc/%s.png", bulletName.c_str())};
+    Bullet* bullet {Bullet::create(name)};
+    return bullet;
+}
+
 MainActor* GameFactory::createActor()
 {
     if (actor_ == nullptr) {
@@ -81,12 +90,19 @@ MainActor* GameFactory::createActor()
         // Create a standard Vehicle
         log("Creating Vehicle");
         std::string astroName {"astro"};
-        Vehicle* vehicle {this->createVehicle(astroName)};
+        Vehicle* vehicle {createVehicle(astroName)};
         actor_->getVehicles().push_back(vehicle);
         std::string spiderName {"spider"};
-        Vehicle* vehicle2 {this->createVehicle(spiderName)};
+        Vehicle* vehicle2 {createVehicle(spiderName)};
         actor_->getVehicles().push_back(vehicle2);
         actor_->setVehicle(vehicle2);
+
+        // Create a standard Bullet
+        log("Creating Bullet");
+        std::string bulletName("bullet");
+        Bullet* bullet {createBullet(bulletName)};
+        actor_->getBullets().push_back(bullet);
+        actor_->setBullet(bullet);
     }
     
     return actor_;
@@ -141,4 +157,23 @@ BodyView* GameFactory::createBodyMenu()
         });
     }
     return body_;
+}
+
+ShotView* GameFactory::createShotMenu()
+{
+    if (shot_ == nullptr) {
+        log("Creatin shot menu");
+        std::string shotName{"misc/shot.png"};
+        shot_ = ShotView::create(shotName, createActor(), visibleSize_.width / 2.0f);
+        shot_->setPositionY(visibleSize_.height / 2);
+        shot_->setAnchorPoint(Vec2{0.0f, 0.5f});
+        shot_->setTouchEnabled(true);
+        shot_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
+            if (type == ui::Widget::TouchEventType::ENDED) {
+                shot_->toggle();
+            }
+            return true;
+        });
+    }
+    return shot_;
 }
