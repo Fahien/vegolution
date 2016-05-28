@@ -68,6 +68,35 @@ void DataManager::close()
     sqlite3_close(db_);
 }
 
+std::vector<std::string> DataManager::getEnemies()
+{
+    // Initialize variables
+    std::vector<std::string> enemies {};
+    sqlite3_stmt* statement {nullptr};
+    std::string sql {"SELECT name FROM enemy"};
+
+    // Prepare the statement
+    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
+        log("Could not prepare SELECT: %s", sqlite3_errmsg(db_));
+    }
+    else {
+        // Step
+        while (sqlite3_step(statement) == SQLITE_ROW) {
+            const unsigned char* val = sqlite3_column_text(statement, 0);
+            std::string value = std::string((char*)val);
+            log("Found Enemy[%s]", val);
+            enemies.push_back(value);
+        }
+    }
+
+    // Reset the statement
+    sqlite3_reset(statement);
+    // Destroy the statement
+    sqlite3_finalize(statement);
+    // Return the enemy names
+    return enemies;
+}
+
 void DataManager::save(std::string key, std::string value) {}
 
 std::string DataManager::get(std::string key) {

@@ -6,7 +6,7 @@ USING_NS_CC;
 
 //static Size designResolutionSize { 1200,  720};
 static Size designResolutionSize { 570,  320};
-static Size windowSize           { 570, 320};
+static Size windowSize           { 1200, 720};
 
 // Information about resources
 typedef struct tagResource {

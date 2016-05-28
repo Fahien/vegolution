@@ -17,6 +17,8 @@ Vehicle* Vehicle::create(std::string name, float velocity, float armor)
         vehicle->autorelease();
         vehicle->setName(name);
         vehicle->createPhysicsBody(name);
+        vehicle->getPhysicsBody()->setCategoryBitmask(1);
+        vehicle->getPhysicsBody()->setCollisionBitmask(6);
         return vehicle;
     }
 

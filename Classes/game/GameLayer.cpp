@@ -50,7 +50,7 @@ bool GameLayer::init()
     this->setTag(0);
     
     // Get the main actor
-    actor_= factory_.createActor();
+    actor_ = factory_.createActor();
     this->addChild(actor_, 2);
     // Get the terrain
     Terrain2D* terrain {factory_.createTerrain()};
@@ -71,6 +71,20 @@ bool GameLayer::init()
     board_ = factory_.createBoard();
     menuLayer_->addChild(board_, 8);
     
+    // Create enemy spawning action
+    CallFunc* spawn {CallFunc::create([this](){
+        log("Spawning enemy");
+        Enemy* enemy {factory_.createEnemy()};
+        if (enemy == nullptr) return;
+        enemy->setPositionX(centerX_ + actor_->getOffsetX() * 3);
+        enemy->setPositionY(actor_->getPositionY());
+        this->addChild(enemy, 3);
+    })};
+    DelayTime* delay {DelayTime::create(3.0f)};
+    Sequence* sequence {Sequence::createWithTwoActions(delay, spawn)};
+    RepeatForever* repeat {RepeatForever::create(sequence)};
+    this->runAction(repeat);
+
     // Create the Game Controller
     GameController* controller {GameController::create(actor_, parallax)};
     _eventDispatcher->addEventListenerWithFixedPriority(controller, 1);

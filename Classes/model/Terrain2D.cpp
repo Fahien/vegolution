@@ -34,6 +34,8 @@ void Terrain2D::createPhysicsBody(Size size)
     // Create physics body
     physicsBody_ = PhysicsBody::createBox(size, material);
     physicsBody_->setDynamic(false);
+    physicsBody_->setCategoryBitmask(2);
+    physicsBody_->setCollisionBitmask(5);
     this->addComponent(physicsBody_);
 }
 

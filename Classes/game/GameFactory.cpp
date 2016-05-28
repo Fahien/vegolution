@@ -4,13 +4,45 @@ USING_NS_CC;
 
 GameFactory::GameFactory(Vegolution* game)
 : game_ {game}
+, data_ {game->getDataManager()}
 {
+    log("Creating GameFactory");
     Director* director {game_->getDirector()};
     visibleSize_ = director->getVisibleSize();
     origin_ = director->getVisibleOrigin();
     center_.x = visibleSize_.width / 2;
     center_.y = visibleSize_.height / 2;
     offsetX_ = visibleSize_.width / 4;
+
+    createEnemies();
+}
+
+GameFactory::~GameFactory()
+{
+    log("Destructing GameFactory");
+    for (Enemy* enemy : enemies_) {
+       enemy->release(); 
+    }
+}
+
+void GameFactory::createEnemies()
+{
+    // Get enemy names
+    std::vector<std::string> names {data_->getEnemies()};
+    // Create enemies
+    for (std::string name : names) {
+        Enemy* enemy = Enemy::create("enemy/" + name + ".png");
+        enemies_.push_back(enemy);
+    }
+}
+
+Enemy* GameFactory::createEnemy()
+{
+    if (enemies_.empty()) return nullptr;
+
+    Enemy* enemy {enemies_.back()};
+    enemies_.pop_back();
+    return enemy;
 }
 
 Vehicle* GameFactory::createVehicle(std::string vehicleName)

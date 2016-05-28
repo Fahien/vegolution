@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 #include "Vegolution.h"
+#include "model/Enemy.h"
 #include "model/Vehicle.h"
 #include "model/MainActor.h"
 #include "model/Terrain2D.h"
@@ -14,6 +15,9 @@ class GameFactory
 {
 public:
     GameFactory(Vegolution* game);
+    ~GameFactory();
+
+    Enemy* createEnemy();
 
     Vehicle*         createVehicle(std::string name);
     MainActor*       createActor();
@@ -23,13 +27,19 @@ public:
 
     BodyView* createBodyMenu();
 
+protected:
+    void createEnemies();
+
 private:
     Vegolution* game_;
+    DataManager* data_;
 
     cocos2d::Size    visibleSize_;
     cocos2d::Vec2    origin_;
     cocos2d::Vec2    center_;
     float            offsetX_;
+
+    std::vector<Enemy*> enemies_;
 
     MainActor*       actor_     {nullptr};
     Terrain2D*       terrain_   {nullptr};

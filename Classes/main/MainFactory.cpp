@@ -9,7 +9,7 @@ MainFactory::MainFactory(Vegolution* game)
 , director_ {game->getDirector()}
 , data_     {game->getDataManager()}
 {
-    log("Creagin MainFactory");
+    log("Creating MainFactory");
 
     // Set center
     log("Setting center");

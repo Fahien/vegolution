@@ -15,6 +15,8 @@ public:
     int open();
     void close();
 
+    std::vector<std::string> getEnemies();
+
     void save(std::string key, std::string value);
     std::string get(std::string key);
 private:
