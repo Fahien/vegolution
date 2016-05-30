@@ -2,19 +2,36 @@
 
 USING_NS_CC;
 
-Bullet* Bullet::create(std::string name)
+Bullet* Bullet::create(std::string name, int damage, int velocity)
 {
     // Construct
-    Bullet* bullet {new (std::nothrow) Bullet{}};
+    Bullet* bullet {new (std::nothrow) Bullet{damage, velocity}};
 
+	std::string filename{ StringUtils::format("bullet/%s.png", name.c_str(), name.c_str()) };
     // Initialize
-    if (bullet && bullet->initWithFile(name)) {
+    if (bullet && bullet->initWithFile(filename)) {
         bullet->setName(name);
+		bullet->setTag(8);
         bullet->createPhysicsBody(name);
-        bullet->getPhysicsBody()->setCollisionBitmask(5);
+		bullet->physicsBody_->setDynamic(true);
+		// Contact test
+		bullet->physicsBody_->setContactTestBitmask(4);
+		// Player bullet category is 8
+		bullet->physicsBody_->setCategoryBitmask(8);
+		// Collide with enemies
+        bullet->physicsBody_->setCollisionBitmask(4);
         return bullet;
     }
 
+	// Error
     CC_SAFE_DELETE(bullet);
     return nullptr;
+}
+
+// Constructor
+Bullet::Bullet(int damage, int velocity)
+	: damage_{ damage }
+	, velocity_ { velocity }
+{
+	log("Creating a bullet");
 }

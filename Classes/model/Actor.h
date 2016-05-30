@@ -15,6 +15,7 @@ public:
 
     // Implement the static create method
     CREATE_FUNC(Actor)
+
 protected:
     cocos2d::PhysicsBody* physicsBody_;
 

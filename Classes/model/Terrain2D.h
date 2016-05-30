@@ -15,8 +15,11 @@ public:
     void update(float delta);
 
     inline cocos2d::PhysicsBody* getPhysicsBody() const { return physicsBody_; }
-private:
+
+protected:
     cocos2d::PhysicsBody* physicsBody_;
+
+private:
     MainActor* actor_;
     float width_;
 };

@@ -4,7 +4,6 @@
 
 USING_NS_CC;
 
-//static Size designResolutionSize { 1200,  720};
 static Size designResolutionSize { 570,  320};
 static Size windowSize           { 1200, 720};
 
@@ -26,6 +25,7 @@ static Resource smallResource  {Size{ 480,  320}, Size{   0,   0}, "sd"};
 // Declare and array containing the resource descriptions, from largest to smallest
 static std::array<Resource, 3> resources {{largeResource, mediumResource, smallResource}};
 
+// Construct Vegolutions and DataManager
 Vegolution::Vegolution()
 : director_    {nullptr}
 , fileUtils_   {nullptr}
@@ -34,7 +34,9 @@ Vegolution::Vegolution()
     log("Creating Vegolution");
 }
 
-Vegolution::~Vegolution() {
+// Destruct DataManager and Vegolution
+Vegolution::~Vegolution()
+{
     log("Destructing Vegolution");
 }
 
@@ -45,7 +47,6 @@ void Vegolution::initGLContextAttrs()
     // Set OpenGL context attributions, now can only set six attributions:
     // red, green, blue, alpha, depth, stencil
     GLContextAttrs glContextAttrs {8, 8, 8, 8, 24, 8};
-
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
@@ -58,8 +59,11 @@ static int register_all_packages()
 
 bool Vegolution::applicationDidFinishLaunching()
 {
-    director_ = Director::getInstance();
+	// Get Director instance
+    director_  = Director::getInstance();
+	// Get FileUtils instance
     fileUtils_ = FileUtils::getInstance();
+	// Initialize the DataManager
     dataManager_.init(fileUtils_);
 
     // Initialize director
@@ -73,23 +77,23 @@ bool Vegolution::applicationDidFinishLaunching()
         director_->setOpenGLView(glview);
     }
 
-    // Turn on display FPS
+    // Set display FPS
     director_->setDisplayStats(false);
 
     // Set FPS. the default value is 1.0/60 if you don't call this
-    director_->setAnimationInterval(1.0 / 60);
+    director_->setAnimationInterval(1.0f / 60.0f);
 
     // Set the design resolution
     glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
+	// Get the frame size
     Size frameSize {glview->getFrameSize()};
-	log("Frame size is %fx%f", frameSize.width, frameSize.height);
+	log("Frame size is %.0fx%.0f", frameSize.width, frameSize.height);
 
 	// Vector to build a list of resources paths
     std::vector<std::string> searchPaths;
 
 	float scaleFactor {-1.0f};
-	
 	// Look through our resource definitions
      for (auto resource : resources) {
         // If the screen is wider or higher than the resolution of the resource
@@ -111,7 +115,7 @@ bool Vegolution::applicationDidFinishLaunching()
 
     register_all_packages();
 
-    // Create a scene. it's an autorelease object
+    // Create the main scene. it's an autorelease object
     Scene* scene {MainLayer::createScene(this)};
 
     // Run

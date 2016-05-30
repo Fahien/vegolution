@@ -60,7 +60,7 @@ ui::Text* MainFactory::createPlayText()
 	if (play_ == nullptr) {
         log("Creating play");
         // Get localized string
-        std::string playText {data_->get("main.play")};
+        std::string playText {data_->getString("main.play")};
 		play_ = ui::Text::create(playText, fontPath_, fontSize_);
 		play_->setContentSize(textContentSize_);
 		play_->setPositionX(-textContentSize_.width / 2);
@@ -95,7 +95,7 @@ ui::Text* MainFactory::createSettingsText()
 	if (settings_ == nullptr) {
         log("Creating settings");
         // Get localized string
-        std::string settingsText {data_->get("main.settings")};
+        std::string settingsText {data_->getString("main.settings")};
 		settings_ = ui::Text::create(settingsText, fontPath_, fontSize_);
 		settings_->setContentSize(textContentSize_);
 		settings_->setPositionX(-textContentSize_.width / 2);
@@ -128,7 +128,7 @@ ui::Text* MainFactory::createQuitText()
 {
 	if (quit_ == nullptr) {
         log("Creating quit");
-		std::string quitText {data_->get("main.quit")};
+		std::string quitText {data_->getString("main.quit")};
     	quit_ = ui::Text::create(quitText, fontPath_, fontSize_);
     	quit_->setContentSize(textContentSize_);
      	quit_->setPositionX(-textContentSize_.width / 2);

@@ -47,11 +47,11 @@ void BodyView::createChildren()
     for (Vehicle* vehicle : actor_->getVehicles()) {
         VehicleView* view = VehicleView::create(vehicle);
         view->setTouchEnabled(true);
-        view->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
+        view->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type) {
             VehicleView* view {static_cast<VehicleView*>(sender)};
             switch(type) {
             case ui::Widget::TouchEventType::ENDED :
-                actor_->setVehicle(view->getVehicle());
+                actor_->switchVehicle();
                 toggle();
                 break;
             default: break;

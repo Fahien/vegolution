@@ -6,14 +6,16 @@
 class Bullet : public Actor
 {
 public:
-    static Bullet* create(std::string name);
+	Bullet(int damage, int velocity);
 
-    inline float getDamage() const { return damage_; }
-    inline void setDamage(float damage) { damage_ = damage; }
+    static Bullet* create(std::string imagename, int damage, int velocity);
+
+    inline int getDamage() const { return damage_; }
+	inline int getVelocity() const { return velocity_; }
 
 private:
-    float damage_;
-
+    int damage_;
+	int velocity_;
 };
 
 #endif // __BULLET_ACTOR_H__

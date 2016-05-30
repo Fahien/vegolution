@@ -18,21 +18,18 @@ public:
     GameFactory(Vegolution* game);
     ~GameFactory();
 
-    Enemy* createEnemy();
+	Vehicle* getVehicle(std::string& vehiclename);
 
-    Vehicle* createVehicle(std::string name);
-    Bullet*  createBullet(std::string name);
+    Enemy* spawnEnemy();
+	void   despawnEnemy(Enemy* enemy);
 
     MainActor*       createActor();
     Terrain2D*       createTerrain();
     Parallax*        createParallax();
     cocos2d::Sprite* createBoard();
 
-    BodyView* createBodyMenu();
+    cocos2d::ui::ImageView* createLeftGear();
     ShotView* createShotMenu();
-
-protected:
-    void createEnemies();
 
 private:
     Vegolution* game_;
@@ -43,18 +40,17 @@ private:
     cocos2d::Vec2    center_;
     float            offsetX_;
 
+	std::vector<Bullet*> bullets_;
+	std::vector<Vehicle*> vehicles_;
     std::vector<Enemy*> enemies_;
     std::vector<Enemy*> enemyPool_;
-
-    std::vector<Bullet*> bullets_;
-
 
     MainActor*       actor_     {nullptr};
     Terrain2D*       terrain_   {nullptr};
     Parallax*        parallax_  {nullptr};
     cocos2d::Sprite* board_     {nullptr};
 
-    BodyView* body_ {nullptr};
+    cocos2d::ui::ImageView* leftgear_ {nullptr};
     ShotView* shot_ {nullptr};
 };
 

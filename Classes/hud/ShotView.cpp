@@ -39,7 +39,7 @@ void ShotView::toggle()
 
 void ShotView::createChildren()
 {
-    // Create children to show
+    /* Create children to show
     ui::Layout* layout {ui::Layout::create()};
     Size size {getContentSize()};
     layout->setContentSize(Size{width_, size.height});
@@ -63,4 +63,5 @@ void ShotView::createChildren()
         layout->addChild(view);
     }
     addChild(layout);
+	*/
 }

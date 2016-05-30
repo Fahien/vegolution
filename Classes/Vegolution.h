@@ -5,10 +5,9 @@
 #include "data/DataManager.h"
 
 /**
-@brief    The cocos2d Application.
-
-The reason for implement as private inheritance is to hide some interface call by Director.
-*/
+ * @brief	The Vegolution Application
+ * The reason for implement as private inheritance is to hide some interface call by Director.
+ */
 class Vegolution : private cocos2d::Application
 {
 public:
@@ -18,27 +17,38 @@ public:
     virtual void initGLContextAttrs();
 
     /**
-    @brief    Implement Director and Scene init code here.
-    @return true    Initialize success, app continue.
-    @return false   Initialize failed, app terminate.
-    */
+     * @brief  Implement Director and Scene init code here.
+     * @return true   Initialize success, app continue.
+     * @return false  Initialize failed, app terminate.
+     */
     virtual bool applicationDidFinishLaunching();
 
     /**
-    @brief  The function be called when the application enter background
-    @param  the pointer of the application
-    */
+     * @brief  The function be called when the application enter background
+     * @param  the pointer of the application
+     */
     virtual void applicationDidEnterBackground();
 
     /**
-    @brief  The function be called when the application enter foreground
-    @param  the pointer of the application
-    */
+     * @brief  The function be called when the application enter foreground
+     * @param  the pointer of the application
+     */
     virtual void applicationWillEnterForeground();
 
-    inline cocos2d::Director* getDirector() const { return director_; }
+	/**
+	 * @return	The Director instance pointer
+	 */
+    inline cocos2d::Director*  getDirector() const  { return director_; }
+
+	/**
+	 * @return  The FileUtils instance pointer
+	 */
     inline cocos2d::FileUtils* getFileUtils() const { return fileUtils_; }
-    inline DataManager* getDataManager() { return &dataManager_; }
+
+	/**
+	 * @return	The DataManager instance pointer
+	 */
+    inline DataManager*	       getDataManager()	    { return &dataManager_; }
 
 private:
     cocos2d::Director*  director_;

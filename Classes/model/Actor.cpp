@@ -26,5 +26,5 @@ void Actor::createPhysicsBody(std::string name)
     // Create the body
     physicsBody_ = PhysicsBody::createBox(this->getContentSize(), material);
     physicsBody_->setName(name);
-    this->addComponent(physicsBody_);
+    addComponent(physicsBody_);
 }
