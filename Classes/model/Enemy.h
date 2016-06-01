@@ -7,11 +7,12 @@
 class Enemy : public Actor
 {
 public:
-	Enemy(int health, int velocity, int delay, Bullet* bullet);
+	Enemy(int healthMax, int velocity, int delay, Bullet* bullet);
 
 	// Create method
-    static Enemy* create(std::string name, int health, int velocity, int delay, Bullet* bullet);
+    static Enemy* create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet);
 
+	inline int getHealthMax() const { return healthMax_; }
     inline int getHealth() const { return health_; }
     inline void setHealth(unsigned health) { health_ = health; }
 
@@ -20,6 +21,7 @@ public:
 	inline Bullet* getBullet() const { return bullet_; }
 
 private:
+	int healthMax_;
     int health_;
 	int velocity_;
 	int delay_;

@@ -12,7 +12,9 @@ public:
     static MainActor* create();
 
     inline float getOffsetX() const { return offsetX_; }
-    void setOffset(float offset);
+	inline void setOffsetX(float offsetX) { offsetX_ = offsetX; }
+	inline bool isMoving() const { return moving_; }
+	inline void setMoving(bool moving) { moving_ = moving; }
 
     cocos2d::PhysicsBody* getPhysicsBody();
 
@@ -22,8 +24,11 @@ public:
 
 	bool switchVehicle();
 
+	void update(float delta);
+
 private:
     float offsetX_;
+	bool moving_;
 
     float velocity;
     float attack;

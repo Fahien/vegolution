@@ -2,13 +2,15 @@
 
 USING_NS_CC;
 
+// Constructor
 Parallax::Parallax(MainActor* actor)
-: actor_ {actor}
+: actor_{ actor }
 {}
 
+// Create method
 Parallax* Parallax::create(const std::string name, MainActor* actor)
 {
-    Parallax* parallax {new (std::nothrow) Parallax{actor}};
+	Parallax* parallax{ new (std::nothrow) Parallax{ actor } };
 
     // Initialize
     if (parallax && parallax->init()) {
@@ -21,24 +23,25 @@ Parallax* Parallax::create(const std::string name, MainActor* actor)
     return nullptr;
 }
 
+// Create method for backgorunds
 void Parallax::createBackgrounds(const std::string foldername)
 {
-    Director* director {Director::getInstance()};
-    Vec2 origin {director->getVisibleOrigin()};
-    Size visibleSize {director->getVisibleSize()};
-    float centerX {origin.x + visibleSize.width / 2};
+	Director* director{ Director::getInstance() };
+	Vec2 origin{ director->getVisibleOrigin() };
+	Size visibleSize{ director->getVisibleSize() };
+	float centerX{ origin.x + visibleSize.width / 2 };
     // Get the scale factor
     scale_ = director->getContentScaleFactor();
 
     // Background anchor point
-    Vec2 anchor {0.5f, 0.0f};
+	Vec2 anchor{ 0.5f, 0.0f };
 
     // Get file utils
-    FileUtils* fileUtils {FileUtils::getInstance()};
+	FileUtils* fileUtils{ FileUtils::getInstance() };
 
     // Load backgrounds
     for (unsigned i {0}; i < backgroundMax; ++i) {
-        std::vector<Actor*> row {};
+		std::vector<Actor*> row{};
 
         for (unsigned j {0}; j < backgroundMax; j++) {
             // Compose a file name
@@ -47,7 +50,7 @@ void Parallax::createBackgrounds(const std::string foldername)
             if (!fileUtils->isFileExist(name)) break;
 
             // Create a background
-            Actor* background {Actor::create(name)};
+			Actor* background{ Actor::create(name) };
             log("\t%s", name.c_str());
 
             // Set the right position
@@ -57,7 +60,7 @@ void Parallax::createBackgrounds(const std::string foldername)
             background->setPositionX(x);
 
             // Do not collide
-            PhysicsBody* body {background->getPhysicsBody()};
+			PhysicsBody* body{ background->getPhysicsBody() };
             body->setCategoryBitmask(0x00);
             body->setCollisionBitmask(0x00);
             body->setGravityEnable(false);
@@ -65,7 +68,7 @@ void Parallax::createBackgrounds(const std::string foldername)
             // Insert in a row
             row.push_back(background);
             // Add to the parallax node
-            this->addChild(background);
+            addChild(background);
 
             // If it's the first row, go ahead
             if (i == 0) {
@@ -79,14 +82,15 @@ void Parallax::createBackgrounds(const std::string foldername)
         }
 
         // Insert the created row
-        if (row.size() > 0) this->backgrounds_.push_back(row);
+        if (row.size() > 0) backgrounds_.push_back(row);
     }
 }
 
+// Update method
 void Parallax::update(float delta)
 {
-    float velFactor {1.0f};
-    for (unsigned i {0}; i < backgrounds_.size(); ++i) {
+	float velFactor{ 1.0f };
+	for (unsigned i{ 0 }; i < backgrounds_.size(); ++i) {
         // Get a row
         std::vector<Actor*> row = backgrounds_[i];
         // Get the row size
@@ -102,7 +106,7 @@ void Parallax::update(float delta)
             }
             // Set other backgrounds velocity
             else if (velFactor != 0.0f) {
-                Vec2 velocity {actor_->getPhysicsBody()->getVelocity()};
+				Vec2 velocity{ actor_->getPhysicsBody()->getVelocity() };
                 velocity *= velFactor;
                 velocity.y = 0.0f;
                 background->getPhysicsBody()->setVelocity(velocity);

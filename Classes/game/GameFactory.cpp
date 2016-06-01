@@ -10,8 +10,8 @@ GameFactory::GameFactory(Vegolution* game)
 	, enemies_{ data_->getEnemies() }
 {
     log("Creating GameFactory");
-    Director* director {game_->getDirector()};
-    visibleSize_ = director->getVisibleSize();
+	Director* director{ game_->getDirector() };
+	visibleSize_ = director->getVisibleSize();
     origin_ = director->getVisibleOrigin();
     center_.x = visibleSize_.width / 2;
     center_.y = visibleSize_.height / 2;
@@ -33,14 +33,16 @@ Enemy* GameFactory::spawnEnemy()
 {
     if (enemyPool_.empty()) return nullptr;
 
-    Enemy* enemy {enemyPool_.back()};
-    enemyPool_.pop_back();
+    Enemy* enemy {enemyPool_.front()};
+    enemyPool_.erase(enemyPool_.begin());
     return enemy;
 }
 
 // Return an enemy to the pool
 void GameFactory::despawnEnemy(Enemy * enemy)
 {
+	// Reset the health
+	enemy->setHealth(enemy->getHealthMax());
 	enemyPool_.push_back(enemy);
 }
 
@@ -59,7 +61,7 @@ MainActor* GameFactory::createActor()
         // Create the main actor
         actor_ = MainActor::create();
         actor_->setPosition(center_.x, center_.y);
-        actor_->setOffset(offsetX_);
+        actor_->setOffsetX(offsetX_);
 
         // Inject vehicles
 		for (Vehicle* vehicle : vehicles_) {
@@ -108,27 +110,16 @@ ui::ImageView* GameFactory::createLeftGear()
 {
     if (leftgear_ == nullptr) {
         log("Creating left gear");
-        std::string filename {"misc/leftgear.png"};
+		std::string filename{ StringUtils::format("misc/leftgear-%s.png", actor_->getVehicle()->getName().c_str()) };
 		leftgear_ = ui::ImageView::create(filename);
 		leftgear_->setPositionY(visibleSize_.height);
 		leftgear_->setAnchorPoint(Vec2{ 0.0f, 1.0f });
 		leftgear_->setTouchEnabled(true);
-		Sprite* vehicle{ Sprite::createWithSpriteFrame(createActor()->getVehicle()->getSpriteFrame()) };
-        vehicle->setScale(0.75f, 0.75f);
-        vehicle->setPositionY(leftgear_->getContentSize().height);
-		vehicle->setAnchorPoint(Vec2{ 0.0f, 1.0f });
-		leftgear_->addChild(vehicle);
 		leftgear_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
             if (type == ui::Widget::TouchEventType::ENDED) {
 				if (actor_->switchVehicle()) {
-					leftgear_->removeAllChildren();
-					std::string vehiclename{ actor_->getVehicle()->getName() };
-					std::string filename{ StringUtils::format("vehicle/%s/%s.png", vehiclename.c_str(), vehiclename.c_str()) };
-					Sprite* vehicle{ Sprite::create(filename) };
-                    vehicle->setScale(0.75f, 0.75f);
-                    vehicle->setPositionY(leftgear_->getContentSize().height);
-					vehicle->setAnchorPoint(Vec2{ 0.0f, 1.0f });
-					leftgear_->addChild(vehicle);
+					std::string filename{ StringUtils::format("misc/leftgear-%s.png", actor_->getVehicle()->getName().c_str()) };
+					leftgear_->loadTexture(filename);
 				}
             }
             return true;
@@ -137,21 +128,27 @@ ui::ImageView* GameFactory::createLeftGear()
     return leftgear_;
 }
 
-ShotView* GameFactory::createShotMenu()
+ui::ImageView* GameFactory::createRightGear()
 {
-    if (shot_ == nullptr) {
-        log("Creatin shot menu");
-        std::string shotName{"misc/shot.png"};
-        shot_ = ShotView::create(shotName, createActor(), visibleSize_.width / 2.0f);
-        shot_->setPositionY(visibleSize_.height / 2);
-        shot_->setAnchorPoint(Vec2{0.0f, 0.5f});
-        shot_->setTouchEnabled(true);
-        shot_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
+    if (rightgear_ == nullptr) {
+        log("Creating right gear");
+		std::string filename{ "misc/rightgear.png" };
+        rightgear_ = ui::ImageView::create(filename);
+        rightgear_->setPositionY(visibleSize_.height);
+		rightgear_->setPositionX(visibleSize_.width);
+        rightgear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
+        rightgear_->setTouchEnabled(true);
+        rightgear_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
             if (type == ui::Widget::TouchEventType::ENDED) {
-                shot_->toggle();
+				log("Should open modal");
             }
             return true;
         });
+
+		filename = std::string{ "misc/rightgear-health.png" };
+		Sprite* health{ Sprite::create(filename) };
+		health->setAnchorPoint(Vec2{ 0.0f, 0.0f });
+		rightgear_->addChild(health, 1);
     }
-    return shot_;
+    return rightgear_;
 }

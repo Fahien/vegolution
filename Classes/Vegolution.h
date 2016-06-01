@@ -36,6 +36,11 @@ public:
     virtual void applicationWillEnterForeground();
 
 	/**
+	 * @return  The application version
+	 */
+	virtual std::string getVersion() override { return std::string{"0.1"}; }
+
+	/**
 	 * @return	The Director instance pointer
 	 */
     inline cocos2d::Director*  getDirector() const  { return director_; }

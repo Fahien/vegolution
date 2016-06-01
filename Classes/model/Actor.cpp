@@ -5,7 +5,7 @@ USING_NS_CC;
 Actor* Actor::create(std::string name)
 {
     // Construct
-    Actor* actor {new (std::nothrow) Actor()};
+	Actor* actor{ new (std::nothrow) Actor{} };
 
     // Initialize
     if (actor && actor->initWithFile(name)) {
@@ -15,6 +15,7 @@ Actor* Actor::create(std::string name)
         return actor;
     }
 
+	// Error
     CC_SAFE_DELETE(actor);
     return nullptr;
 }
@@ -22,9 +23,9 @@ Actor* Actor::create(std::string name)
 void Actor::createPhysicsBody(std::string name)
 {
     // Create a material
-    PhysicsMaterial material {1.0f, 0.2f, 0.5f};
+	PhysicsMaterial material{ 1.0f, 0.2f, 0.5f };
     // Create the body
-    physicsBody_ = PhysicsBody::createBox(this->getContentSize(), material);
+    physicsBody_ = PhysicsBody::createBox(getContentSize(), material);
     physicsBody_->setName(name);
     addComponent(physicsBody_);
 }

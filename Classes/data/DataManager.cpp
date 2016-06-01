@@ -149,14 +149,17 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			int velocity = sqlite3_column_int(statement, 2);
 			// Get delay
 			int delay = sqlite3_column_int(statement, 3);
-			// Get bullet name
+			// Get bullet
 			const unsigned char* bname = sqlite3_column_text(statement, 4);
 			std::string bulletname = std::string((char*)bname);
 			log("Found Vehicle[%s][%d][%d][%s]", name, health, velocity, bname);
-			// Get the bullet
 			Bullet* bullet = getBullet(bulletname);
+			// Get offset
+			int offsetX = sqlite3_column_int(statement, 5);
+			int offsetY = sqlite3_column_int(statement, 6);
+			Vec2 offset = Vec2{ static_cast<float>(offsetX), static_cast<float>(offsetY) };
 			// Create the Vehicle
-			Vehicle* vehicle = Vehicle::create(vehiclename, health, velocity, delay, bullet);
+			Vehicle* vehicle = Vehicle::create(vehiclename, health, velocity, delay, bullet, offset);
 
 			// Create animation
 			Animation* animation{ Animation::create() };

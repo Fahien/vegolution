@@ -21,37 +21,37 @@ public:
 	Vehicle* getVehicle(std::string& vehiclename);
 
     Enemy* spawnEnemy();
-	void   despawnEnemy(Enemy* enemy);
+	void despawnEnemy(Enemy* enemy);
 
-    MainActor*       createActor();
-    Terrain2D*       createTerrain();
-    Parallax*        createParallax();
+    MainActor* createActor();
+    Terrain2D* createTerrain();
+    Parallax* createParallax();
     cocos2d::Sprite* createBoard();
 
     cocos2d::ui::ImageView* createLeftGear();
-    ShotView* createShotMenu();
+	cocos2d::ui::ImageView* createRightGear();
 
 private:
     Vegolution* game_;
     DataManager* data_;
 
-    cocos2d::Size    visibleSize_;
-    cocos2d::Vec2    origin_;
-    cocos2d::Vec2    center_;
-    float            offsetX_;
+    cocos2d::Size visibleSize_;
+    cocos2d::Vec2 origin_;
+    cocos2d::Vec2 center_;
+    float offsetX_;
 
 	std::vector<Bullet*> bullets_;
 	std::vector<Vehicle*> vehicles_;
     std::vector<Enemy*> enemies_;
     std::vector<Enemy*> enemyPool_;
 
-    MainActor*       actor_     {nullptr};
-    Terrain2D*       terrain_   {nullptr};
-    Parallax*        parallax_  {nullptr};
-    cocos2d::Sprite* board_     {nullptr};
+	MainActor* actor_{ nullptr };
+	Terrain2D* terrain_{ nullptr };
+	Parallax* parallax_{ nullptr };
+	cocos2d::Sprite* board_{ nullptr };
 
-    cocos2d::ui::ImageView* leftgear_ {nullptr};
-    ShotView* shot_ {nullptr};
+	cocos2d::ui::ImageView* leftgear_{ nullptr };
+	cocos2d::ui::ImageView* rightgear_{ nullptr };
 };
 
 #endif // __GAME_FACTORY_H__

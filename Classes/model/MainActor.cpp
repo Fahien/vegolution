@@ -18,14 +18,13 @@ MainActor* MainActor::create()
     // Initialize
     if (actor && actor->init()) {
         actor->autorelease();
+		actor->scheduleUpdate();
         return actor;
     }
 
     CC_SAFE_DELETE(actor);
     return nullptr;
 }
-
-void MainActor::setOffset(float offsetX) { offsetX_ = offsetX; }
 
 PhysicsBody* MainActor::getPhysicsBody()
 {
@@ -60,4 +59,34 @@ bool MainActor::switchVehicle()
 	vehicle_ = vehicle;
 	addChild(vehicle);
 	return true;
+}
+
+void MainActor::update(float delta) {
+	// Get current body
+	PhysicsBody* body{ vehicle_->getPhysicsBody() };
+	// Get current velocity
+	Vec2 velocity{ body->getVelocity() };
+	float vehicleVelocity{ vehicle_->getVelocity() * 32.0f };
+	if (moving_) {
+		// If is not the max velocity
+		if (velocity.x < vehicleVelocity) {
+			velocity.x += vehicleVelocity * delta * 2.0f; // Increment
+			if (velocity.x > vehicleVelocity) {
+				velocity.x = vehicleVelocity;
+			}
+		} else {
+			velocity.x -= vehicleVelocity * delta * 2.0f; // Decrement
+		}
+	}
+	else {
+		// If velocity is greater than zero
+		if (velocity.x > 0.0f) {
+			velocity.x -= vehicleVelocity * delta * 2.0f; // Decrement
+			if (velocity.x < 0.0f) velocity.x = 0.0f; // Set zero
+		} else {
+			velocity.x = 0.0f; // Set zero
+		}
+	}
+	// Set the new velocity
+	body->setVelocity(velocity);
 }

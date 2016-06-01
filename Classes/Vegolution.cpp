@@ -4,8 +4,7 @@
 
 USING_NS_CC;
 
-static Size designResolutionSize { 570,  320};
-static Size windowSize           { 1200, 720};
+static Size designResolutionSize{ 1200, 720 };
 
 // Information about resources
 typedef struct tagResource {
@@ -57,6 +56,7 @@ static int register_all_packages()
     return 0; //flag for packages manager
 }
 
+// Hook method for application did finish launching
 bool Vegolution::applicationDidFinishLaunching()
 {
 	// Get Director instance
@@ -70,7 +70,7 @@ bool Vegolution::applicationDidFinishLaunching()
     GLView* glview {director_->getOpenGLView()};
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
+        glview = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, designResolutionSize.width, designResolutionSize.height});
 #else
         glview = GLViewImpl::create("Vegolution");
 #endif
@@ -118,9 +118,8 @@ bool Vegolution::applicationDidFinishLaunching()
     // Create the main scene. it's an autorelease object
     Scene* scene {MainLayer::createScene(this)};
 
-    // Run
+    // Run now!
     director_->runWithScene(scene);
-
     return true;
 }
 
@@ -133,7 +132,7 @@ void Vegolution::applicationDidEnterBackground() {
 }
 
 // This function will be called when the app is active again
-void Vegolution::applicationWillEnterForeground() {
+void Vegolution::applicationWillEnterForeground() {;
     director_->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here

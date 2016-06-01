@@ -2,10 +2,19 @@
 
 USING_NS_CC;
 
-Enemy* Enemy::create(std::string name, int health, int velocity, int delay, Bullet* bullet)
+// Constructor
+Enemy::Enemy(int healthMax, int velocity, int delay, Bullet* bullet)
+	: healthMax_{ healthMax }
+	, health_ { healthMax }
+	, velocity_{ velocity }
+	, delay_{ delay }
+	, bullet_{ bullet }
+{}
+
+Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet)
 {
 	// Construct
-    Enemy* enemy {new (std::nothrow) Enemy{health, velocity, delay, bullet}};
+	Enemy* enemy{ new (std::nothrow) Enemy{ healthMax, velocity, delay, bullet } };
 
 	std::string filename{ StringUtils::format("enemy/%s/%s.png", name.c_str(), name.c_str()) };
     // Initialize                                                                                             
@@ -25,11 +34,3 @@ Enemy* Enemy::create(std::string name, int health, int velocity, int delay, Bull
 	CC_SAFE_DELETE(enemy);
     return nullptr;
 }
-
-// Constructor
-Enemy::Enemy(int health, int velocity, int delay, Bullet* bullet)
-	: health_{ health }
-	, velocity_{ velocity }
-	, delay_{ delay }
-	, bullet_{ bullet }
-{}
