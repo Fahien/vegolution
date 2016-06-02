@@ -1,0 +1,4 @@
+shell.c
+sqlite3.h
+sqlite3.cpp
+sqlite3ext.h

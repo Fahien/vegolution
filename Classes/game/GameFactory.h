@@ -9,8 +9,9 @@
 #include "model/MainActor.h"
 #include "model/Terrain2D.h"
 #include "model/Parallax.h"
-#include "hud/BodyView.h"
-#include "hud/ShotView.h"
+#include "model/Explosion.h"
+#include "hud/LeftGear.h"
+#include "hud/RightGear.h"
 
 class GameFactory
 {
@@ -28,9 +29,10 @@ public:
     Parallax* createParallax();
     cocos2d::Sprite* createBoard();
 
-    cocos2d::ui::ImageView* createLeftGear();
-	cocos2d::ui::ImageView* createRightGear();
+    LeftGear* createLeftGear();
+	RightGear* createRightGear();
 
+	void createExplosion(Bullet* node);
 private:
     Vegolution* game_;
     DataManager* data_;
@@ -50,8 +52,10 @@ private:
 	Parallax* parallax_{ nullptr };
 	cocos2d::Sprite* board_{ nullptr };
 
-	cocos2d::ui::ImageView* leftgear_{ nullptr };
-	cocos2d::ui::ImageView* rightgear_{ nullptr };
+	LeftGear* leftgear_{ nullptr };
+	RightGear* rightgear_{ nullptr };
+
+	Explosion* explosion_{ nullptr };
 };
 
 #endif // __GAME_FACTORY_H__

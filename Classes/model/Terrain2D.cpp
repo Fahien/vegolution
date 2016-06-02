@@ -2,16 +2,18 @@
 
 USING_NS_CC;
 
+// Constructor
 Terrain2D::Terrain2D(MainActor* actor, float width)
-	: physicsBody_ {nullptr}
-	, actor_       {actor}
-	, width_       {width}
+	: physicsBody_{ nullptr }
+	, actor_{ actor }
+	, width_{ width }
 {}
 
+// Create method
 Terrain2D* Terrain2D::create(MainActor* actor, Size& size)
 {
     // Construct
-    Terrain2D* terrain {new (std::nothrow) Terrain2D{actor, size.width}};
+	Terrain2D* terrain{ new (std::nothrow) Terrain2D{ actor, size.width } };
 
     // Initialize
     if (terrain && terrain->init()) {
@@ -25,10 +27,11 @@ Terrain2D* Terrain2D::create(MainActor* actor, Size& size)
     return nullptr;
 }
 
+// Create method for physics body
 void Terrain2D::createPhysicsBody(Size size)
 {
-    size.width *= 3;
-    size.height = static_cast<float>(static_cast<int>(size.height / 3));
+    size.width *= 3.0f;
+    size.height = static_cast<float>(static_cast<int>(size.height / 4.0f));
     // Create material
 	PhysicsMaterial material{ 4.0f, 0.125f, 0.5f };
     // Create physics body
@@ -41,19 +44,19 @@ void Terrain2D::createPhysicsBody(Size size)
     addComponent(physicsBody_);
 }
 
+// Update method
 void Terrain2D::update(float delta)
 {
     // Get actual X
-    float x {getPositionX()};
+	float x{ getPositionX() };
     // Get actor X
-    float actorX {actor_->getPositionX() + actor_->getVehicle()->getPositionX()};
-    if (actorX - x > 0) {
-        log("Moving terrain from %f", x);
+	float actorX{ actor_->getPositionX() + actor_->getVehicle()->getPositionX() };
+    if (actorX - x > 0.0f) {
+        log("Moving terrain from %f to %f", x, x + width_);
         setPositionX(x + width_);
-        log("To %f", getPositionX());
     }
     // Error check
-    float actorY {actor_->getPositionY() + actor_->getVehicle()->getPositionY()};
+	float actorY{ actor_->getPositionY() + actor_->getVehicle()->getPositionY() };
     if (actorY < getPositionY() + getContentSize().height) {
         log("Actor is going down?");
         actor_->getVehicle()->setPositionY(getPositionY() + getContentSize().height);

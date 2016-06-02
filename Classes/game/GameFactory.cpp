@@ -26,6 +26,8 @@ GameFactory::GameFactory(Vegolution* game)
 GameFactory::~GameFactory()
 {
     log("Destructing GameFactory");
+	log("Releasing explosion");
+	if (explosion_ != nullptr) explosion_->release();
 }
 
 // Get an enemy from the pool
@@ -34,6 +36,9 @@ Enemy* GameFactory::spawnEnemy()
     if (enemyPool_.empty()) return nullptr;
 
     Enemy* enemy {enemyPool_.front()};
+	// Schedule the update method and the shot
+	enemy->scheduleUpdate();
+	enemy->scheduleShot();
     enemyPool_.erase(enemyPool_.begin());
     return enemy;
 }
@@ -43,6 +48,9 @@ void GameFactory::despawnEnemy(Enemy * enemy)
 {
 	// Reset the health
 	enemy->setHealth(enemy->getHealthMax());
+	enemy->getPhysicsBody()->resetForces();
+	enemy->getPhysicsBody()->setVelocity(Vec2::ZERO);
+	enemy->stopAllActions();
 	enemyPool_.push_back(enemy);
 }
 
@@ -106,34 +114,37 @@ Sprite* GameFactory::createBoard()
     return board_;
 }
 
-ui::ImageView* GameFactory::createLeftGear()
+LeftGear* GameFactory::createLeftGear()
 {
     if (leftgear_ == nullptr) {
         log("Creating left gear");
-		std::string filename{ StringUtils::format("misc/leftgear-%s.png", actor_->getVehicle()->getName().c_str()) };
-		leftgear_ = ui::ImageView::create(filename);
+		leftgear_ = LeftGear::create();
+		// Add this vehicle listener
+		actor_->addGear(leftgear_);
+		// Update texture
+		leftgear_->onVehicleChange(actor_->getVehicle());
 		leftgear_->setPositionY(visibleSize_.height);
 		leftgear_->setAnchorPoint(Vec2{ 0.0f, 1.0f });
 		leftgear_->setTouchEnabled(true);
 		leftgear_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
-            if (type == ui::Widget::TouchEventType::ENDED) {
-				if (actor_->switchVehicle()) {
-					std::string filename{ StringUtils::format("misc/leftgear-%s.png", actor_->getVehicle()->getName().c_str()) };
-					leftgear_->loadTexture(filename);
-				}
-            }
+            if (type == ui::Widget::TouchEventType::ENDED) actor_->switchVehicle();
             return true;
         });
     }
     return leftgear_;
 }
 
-ui::ImageView* GameFactory::createRightGear()
+RightGear* GameFactory::createRightGear()
 {
     if (rightgear_ == nullptr) {
         log("Creating right gear");
+        rightgear_ = RightGear::create();
+		// Set vehicle health listener
+		actor_->setRightGear(rightgear_);
+		// Add to vehicle change listener
+		actor_->addGear(rightgear_);
 		std::string filename{ "misc/rightgear.png" };
-        rightgear_ = ui::ImageView::create(filename);
+		rightgear_->loadTexture(filename);
         rightgear_->setPositionY(visibleSize_.height);
 		rightgear_->setPositionX(visibleSize_.width);
         rightgear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
@@ -147,8 +158,35 @@ ui::ImageView* GameFactory::createRightGear()
 
 		filename = std::string{ "misc/rightgear-health.png" };
 		Sprite* health{ Sprite::create(filename) };
-		health->setAnchorPoint(Vec2{ 0.0f, 0.0f });
-		rightgear_->addChild(health, 1);
+		Size size{ rightgear_->getContentSize() };
+		health->setPosition(Vec2{ size.width / (2.0f - 0.0625f), size.height / 1.03125f });
+		health->setAnchorPoint(Vec2{ 0.0f, 1.0f });
+		rightgear_->setHealthBar(health);
+		rightgear_->addChild(health);
     }
     return rightgear_;
+}
+
+void GameFactory::createExplosion(Bullet* bullet)
+{
+	if (explosion_ == nullptr) {
+		// Create the animation
+		Animation* animation{ Animation::create() };
+		for (int i{ 0 }; i < 8; i++) {
+			std::string filename = StringUtils::format("misc/explosion/explosion%d.png", i);
+			if (!game_->getFileUtils()->isFileExist(filename)) break;
+			animation->addSpriteFrameWithFile(filename);
+		}
+		animation->setDelayPerUnit(0.0625f);
+		animation->setRestoreOriginalFrame(true);
+		Animate* animate{ Animate::create(animation) };
+		// Create the explosion
+		explosion_ = Explosion::create(animate);
+	}
+	// If explosion has no parent
+	if (explosion_->getParent() == nullptr) {
+		bullet->getParent()->addChild(explosion_);
+		explosion_->setPosition(bullet->getPosition());
+		explosion_->animate();
+	}
 }

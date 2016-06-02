@@ -2,13 +2,9 @@
 
 USING_NS_CC;
 
-MainActor::MainActor()
-{
-    setName("Celly");
-}
+MainActor::MainActor() { setName("Celly"); }
 
-MainActor::~MainActor()
-{}
+MainActor::~MainActor() {}
 
 MainActor* MainActor::create()
 {
@@ -40,24 +36,30 @@ bool MainActor::switchVehicle()
 	if (vehicles_.empty()) return false;
 	// Get the next vehicle
 	Vehicle* vehicle{ vehicles_.front() };
+	// Check for equality
 	if (vehicle_ == vehicle) return false;
+	// Remove vehicle from the list
+	vehicles_.erase(vehicles_.begin());
+	log("New vehicle is %s", vehicle->getName().c_str());
+	// Set vehicle settings
     vehicle->getPhysicsBody()->setDynamic(true);
+	vehicle->getPhysicsBody()->resetForces();
 	if (vehicle_ != nullptr) {
-		log("New vehicle is %s", vehicle->getName().c_str());
-        vehicle->getPhysicsBody()->resetForces();
 		// Set new vehicle position
 		vehicle->setPosition(vehicle_->getPosition());
-		log("New vehicle position is %f, %f", vehicle->getPositionX(), vehicle->getPositionY());
 		vehicle->getPhysicsBody()->setVelocity(vehicle_->getPhysicsBody()->getVelocity());
-		log("New vehicle velocity is %f, %f", vehicle->getPhysicsBody()->getVelocity().x, getPhysicsBody()->getVelocity().y);
+		// Remove old vehicle
+		vehicle_->getPhysicsBody()->setDynamic(false);
         removeChild(vehicle_, false);
-        vehicle_->getPhysicsBody()->setDynamic(false);
 		vehicles_.push_back(vehicle_);
 	}
-	vehicles_.erase(vehicles_.begin());
 	// Set new vehicle
 	vehicle_ = vehicle;
+	// Check for error
+	if (vehicle->getParent() != nullptr) vehicle->removeFromParent();
 	addChild(vehicle);
+	// Update listeners
+	for (Gear* gear : gears_) { gear->onVehicleChange(vehicle); }
 	return true;
 }
 
@@ -66,7 +68,7 @@ void MainActor::update(float delta) {
 	PhysicsBody* body{ vehicle_->getPhysicsBody() };
 	// Get current velocity
 	Vec2 velocity{ body->getVelocity() };
-	float vehicleVelocity{ vehicle_->getVelocity() * 32.0f };
+	float vehicleVelocity{ vehicle_->getVelocity() };
 	if (moving_) {
 		// If is not the max velocity
 		if (velocity.x < vehicleVelocity) {

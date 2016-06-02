@@ -3,9 +3,10 @@
 USING_NS_CC;
 
 // Constructor
-Vehicle::Vehicle(int velocity, int health, int delay, Bullet* bullet, Vec2 offset)
-	: velocity_ { velocity }
-	, health_{ health }
+Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, Vec2 offset)
+	: healthMax_{ healthMax }
+	, health_{ static_cast<float>(healthMax) }
+	, velocity_ { static_cast<float>(velocity) }
 	, delay_{ delay }
 	, bullet_{ bullet }
 	, offset_{ offset }
@@ -17,7 +18,8 @@ Vehicle::Vehicle(int velocity, int health, int delay, Bullet* bullet, Vec2 offse
 		if (bullet_->getParent() != nullptr) bullet_->removeFromParent();
 		getParent()->addChild(bullet_);
 		bullet_->setPosition(getPositionX() + offset_.x, getPositionY() + offset_.y);
-		bullet_->getPhysicsBody()->setVelocity(Vec2{ bullet_->getVelocity() * 64.0f, 0.0f });
+		float velocityX{ physicsBody_->getVelocity().x + bullet_->getVelocity() };
+		bullet_->getPhysicsBody()->setVelocity(Vec2{velocityX, 0.0f });
 		DelayTime* time{ DelayTime::create(delay_ * 0.25f) };
 		CallFunc* remove{ CallFunc::create([this]() { if (bullet_->getParent() != nullptr) bullet_->removeFromParent(); }) };
 		Sequence* sequence{ Sequence::createWithTwoActions(time, remove) };
@@ -31,21 +33,28 @@ Vehicle::Vehicle(int velocity, int health, int delay, Bullet* bullet, Vec2 offse
 }
 
 // Create method
-Vehicle* Vehicle::create(std::string vehiclename, int velocity, int health, int delay, Bullet* bullet, Vec2 offset)
+Vehicle* Vehicle::create(std::string vehiclename, int healthMax, int velocity, int delay, Bullet* bullet, Vec2 offset, bool gravity)
 {
     // Construct
-    Vehicle* vehicle {new (std::nothrow) Vehicle{velocity, health, delay, bullet, offset}};
+    Vehicle* vehicle {new (std::nothrow) Vehicle{ healthMax, velocity, delay, bullet, offset}};
 
 	std::string filename{ StringUtils::format("vehicle/%s/%s.png", vehiclename.c_str(), vehiclename.c_str()) };
     // Initialize
     if (vehicle && vehicle->initWithFile(filename)) {
         vehicle->setName(vehiclename);
         vehicle->createPhysicsBody(vehiclename);
+		// Set gravity enable
+		vehicle->physicsBody_->setGravityEnable(gravity);
+		// Initialize with no dynamic
         vehicle->physicsBody_->setDynamic(false);
+		// Set group 1
+		vehicle->physicsBody_->setGroup(1);
         // Set MainActor category
         vehicle->physicsBody_->setCategoryBitmask(1);
-        // Collide with Terrain and Enemies
-        vehicle->physicsBody_->setCollisionBitmask(6);
+        // Collide with Terrain, Enemies and Enemy bullets
+        vehicle->physicsBody_->setCollisionBitmask(22);
+		// Contact test with enemy bullets
+		vehicle->physicsBody_->setContactTestBitmask(16);
         return vehicle;
     }
 

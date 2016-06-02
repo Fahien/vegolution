@@ -2,7 +2,9 @@
 #define __GAME_LAYER_H__
 
 #include "cocos2d.h"
+#include "ui/CocosGUI.h"
 #include "Vegolution.h"
+#include "GameController.h"
 #include "GameFactory.h"
 #include "model/MainActor.h"
 
@@ -20,16 +22,18 @@ public:
 
     // Update method
     void update(float delta);
-
+	void scheduleSpawning();
+	void listenPlayerBullet();
+	void listenEnemyBullet();
 private:
     Vegolution* game_;
     GameFactory factory_;
 
-    cocos2d::Layer* menuLayer_ {nullptr};
+	cocos2d::Layer* menuLayer_{ nullptr };
 
-    cocos2d::Scene* scene_  {nullptr};
-    MainActor* actor_       {nullptr};
-    cocos2d::Sprite* board_ {nullptr};
+	cocos2d::Scene* scene_{ nullptr };
+	MainActor* actor_{ nullptr };
+	cocos2d::Sprite* board_{ nullptr };
     float centerX_;
     float offsetX_;
 };

@@ -5,7 +5,7 @@ USING_NS_CC;
 // Constructor
 Bullet::Bullet(int damage, int velocity)
 	: damage_{ damage }
-	, velocity_{ velocity }
+	, velocity_{ static_cast<float>(velocity) }
 {
 	log("Creating a bullet");
 }
@@ -22,9 +22,12 @@ Bullet* Bullet::create(std::string name, int damage, int velocity)
         bullet->setName(name);
 		bullet->setTag(8);
         bullet->createPhysicsBody(name);
+		// Set group 2
+		bullet->physicsBody_->setGroup(2);
+		// No gravity and no rotation
 		bullet->physicsBody_->setGravityEnable(false);
 		bullet->physicsBody_->setRotationEnable(false);
-		// Contact test
+		// Contact test with enemy category
 		bullet->physicsBody_->setContactTestBitmask(4);
 		// Player bullet category is 8
 		bullet->physicsBody_->setCategoryBitmask(8);

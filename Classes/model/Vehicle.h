@@ -7,11 +7,13 @@
 class Vehicle : public Actor
 {
 public:
-    Vehicle(int velocity, int health, int delay, Bullet* bullet, cocos2d::Vec2 offset);
-    static Vehicle* create(std::string name, int velocity, int health, int delay, Bullet* bullet, cocos2d::Vec2 offset);
+    Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, cocos2d::Vec2 offset);
+    static Vehicle* create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet, cocos2d::Vec2 offset, bool gravity);
 
-    inline int getVelocity() const { return velocity_; }
-    inline int getHealth() const { return health_; }
+    inline float getVelocity() const { return velocity_; }
+	inline int getHealthMax() const { return healthMax_; }
+    inline float getHealth() const { return health_; }
+	inline void setHealth(float health) { health_ = health; }
 	inline int getDelay() const { return delay_; }
 
 	inline Bullet* getBullet() const { return bullet_; }
@@ -19,8 +21,9 @@ public:
 	inline cocos2d::RepeatForever* getAction() const { return action_; }
 
 private:
-	int velocity_;
-	int health_;
+	int healthMax_;
+	float health_;
+	float velocity_;
 	int delay_;
 
 	Bullet* bullet_;

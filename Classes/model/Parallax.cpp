@@ -78,7 +78,7 @@ void Parallax::createBackgrounds(const std::string foldername)
             }
 
             // If it's near update the Z
-            if (i > backgroundMax - 2) background->setGlobalZOrder(3);
+            if (i > backgroundMax - 2) background->setGlobalZOrder(2);
         }
 
         // Insert the created row

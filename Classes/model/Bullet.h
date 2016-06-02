@@ -11,11 +11,11 @@ public:
     static Bullet* create(std::string imagename, int damage, int velocity);
 
     inline int getDamage() const { return damage_; }
-	inline int getVelocity() const { return velocity_; }
+	inline float getVelocity() const { return velocity_; }
 
 private:
     int damage_;
-	int velocity_;
+	float velocity_;
 };
 
 #endif // __BULLET_ACTOR_H__

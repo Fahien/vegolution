@@ -38,27 +38,6 @@ void DataManager::init(FileUtils* fileUtils)
         log("Could not open database file %d: %s", open_result, sqlite3_errmsg(db_));
         return;
     }
-
-	/*
-    sqlite3_stmt* statement;
-    // Create data table
-    std::string sql {"CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY, value TEXT);"};
-    // Prepare the statement
-    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK) {
-        log("Could not prepare the statement: %s", sqlite3_errmsg(db_));
-    }
-    else {
-        // Execute the statement
-        if (sqlite3_step(statement) != SQLITE_DONE) {
-            log("Could not create data table: %s", sqlite3_errmsg(db_));
-        }
-    }
-
-    // Reset the statement
-    sqlite3_reset(statement);
-    // Destroy the statement
-    sqlite3_finalize(statement);
-	*/
 }
 
 int DataManager::open()
@@ -158,8 +137,11 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			int offsetX = sqlite3_column_int(statement, 5);
 			int offsetY = sqlite3_column_int(statement, 6);
 			Vec2 offset = Vec2{ static_cast<float>(offsetX), static_cast<float>(offsetY) };
+			// Get gravity enable
+			bool gravity = sqlite3_column_int(statement, 7) == 1;
+
 			// Create the Vehicle
-			Vehicle* vehicle = Vehicle::create(vehiclename, health, velocity, delay, bullet, offset);
+			Vehicle* vehicle = Vehicle::create(vehiclename, health, velocity, delay, bullet, offset, gravity);
 
 			// Create animation
 			Animation* animation{ Animation::create() };
@@ -217,7 +199,9 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			std::string bulletname = std::string((char*)bname);
 			log("Found Enemy[%s][%d][%d][%d][%s]", name, health, velocity, delay, bname);
 			// Get the bullet
-			Bullet* bullet = getBullet(bulletname);
+			Bullet* b = getBullet(bulletname);
+			// Clone bullet
+			Bullet* bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
 			// Create the Enemy
 			Enemy* enemy = Enemy::create(enemyname, health, velocity, delay, bullet);
             enemies_.push_back(enemy);
