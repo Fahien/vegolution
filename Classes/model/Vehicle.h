@@ -15,11 +15,18 @@ public:
     inline float getHealth() const { return health_; }
 	inline void setHealth(float health) { health_ = health; }
 	inline int getDelay() const { return delay_; }
-
 	inline Bullet* getBullet() const { return bullet_; }
 
-	inline cocos2d::RepeatForever* getAction() const { return action_; }
+	void tap(cocos2d::Vec2& location);
+	inline cocos2d::Vec2 getTap() const { return tap_; }
+	std::function<void(cocos2d::Vec2)> onTap_;
 
+	void move(float delta);
+	void stop(float delta);
+
+	// Update function
+	void update(float delta);
+	std::function<void(float)> specificUpdate_;
 private:
 	int healthMax_;
 	float health_;
@@ -29,7 +36,7 @@ private:
 	Bullet* bullet_;
 	cocos2d::Vec2 offset_;
 
-	cocos2d::RepeatForever* action_;
+	cocos2d::Vec2 tap_;
 };
 
 #endif // __VEHICLE_H__

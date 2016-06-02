@@ -33,7 +33,7 @@ void Terrain2D::createPhysicsBody(Size size)
     size.width *= 3.0f;
     size.height = static_cast<float>(static_cast<int>(size.height / 4.0f));
     // Create material
-	PhysicsMaterial material{ 4.0f, 0.125f, 0.5f };
+	PhysicsMaterial material{ 4.0f, 0.75f, 0.5f };
     // Create physics body
     physicsBody_ = PhysicsBody::createBox(size, material);
     physicsBody_->setDynamic(false);
@@ -59,6 +59,6 @@ void Terrain2D::update(float delta)
 	float actorY{ actor_->getPositionY() + actor_->getVehicle()->getPositionY() };
     if (actorY < getPositionY() + getContentSize().height) {
         log("Actor is going down?");
-        actor_->getVehicle()->setPositionY(getPositionY() + getContentSize().height);
+        // actor_->getVehicle()->setPositionY(getPositionY() + getContentSize().height);
     }
 }

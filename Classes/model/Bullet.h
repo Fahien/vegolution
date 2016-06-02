@@ -13,6 +13,7 @@ public:
     inline int getDamage() const { return damage_; }
 	inline float getVelocity() const { return velocity_; }
 
+	void remove();
 private:
     int damage_;
 	float velocity_;

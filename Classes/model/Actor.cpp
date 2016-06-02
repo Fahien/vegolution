@@ -23,7 +23,7 @@ Actor* Actor::create(std::string name)
 void Actor::createPhysicsBody(std::string name)
 {
     // Create a material
-	PhysicsMaterial material{ 1.0f, 0.2f, 0.5f };
+	PhysicsMaterial material{ 0.0f, 0.8f, 0.0f };
     // Create the body
     physicsBody_ = PhysicsBody::createBox(getContentSize(), material);
     physicsBody_->setName(name);

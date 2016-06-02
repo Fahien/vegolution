@@ -34,6 +34,9 @@ public:
 
 	void createExplosion(Bullet* node);
 private:
+	// SMELL variable
+	bool jumping_;
+
     Vegolution* game_;
     DataManager* data_;
 

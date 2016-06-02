@@ -18,39 +18,30 @@ GameFactory::GameFactory(Vegolution* game)
     offsetX_ = visibleSize_.width / 4;
 
 	// Fill enemy pool
-	for (Enemy* enemy : enemies_) {
-		enemyPool_.push_back(enemy);
-	}
+	for (Enemy* enemy : enemies_) { enemyPool_.push_back(enemy); }
 }
 
 GameFactory::~GameFactory()
 {
     log("Destructing GameFactory");
 	log("Releasing explosion");
-	if (explosion_ != nullptr) explosion_->release();
+	if (explosion_) { explosion_->release(); }
 }
 
 // Get an enemy from the pool
 Enemy* GameFactory::spawnEnemy()
 {
-    if (enemyPool_.empty()) return nullptr;
+	if (enemyPool_.empty()) { return nullptr; }
 
-    Enemy* enemy {enemyPool_.front()};
-	// Schedule the update method and the shot
-	enemy->scheduleUpdate();
-	enemy->scheduleShot();
+	Enemy* enemy{ enemyPool_.front() };
     enemyPool_.erase(enemyPool_.begin());
     return enemy;
 }
 
 // Return an enemy to the pool
-void GameFactory::despawnEnemy(Enemy * enemy)
+void GameFactory::despawnEnemy(Enemy* enemy)
 {
-	// Reset the health
-	enemy->setHealth(enemy->getHealthMax());
-	enemy->getPhysicsBody()->resetForces();
-	enemy->getPhysicsBody()->setVelocity(Vec2::ZERO);
-	enemy->stopAllActions();
+	enemy->remove();
 	enemyPool_.push_back(enemy);
 }
 
@@ -74,6 +65,29 @@ MainActor* GameFactory::createActor()
         // Inject vehicles
 		for (Vehicle* vehicle : vehicles_) {
 			vehicle->setPositionX(-offsetX_);
+			// Generate specific updates SMELL CODE ALERT!
+			if (vehicle->getName().compare("astro") == 0) {
+				// Astro specific update
+				vehicle->specificUpdate_ = [vehicle](float delta) {
+					float positionY{ vehicle->getPositionY() };
+					float destinationY{ vehicle->getTap().y };
+					float velocity{ vehicle->getVelocity() };
+					if (positionY < destinationY) {
+						vehicle->getPhysicsBody()->applyForce(Vec2{ 0.0f, velocity }); // Increment
+					}
+					else if (positionY > destinationY) {
+						vehicle->getPhysicsBody()->applyForce(Vec2{ 0.0f, -velocity }); // Decrement
+					}
+				};
+			}
+			else if (vehicle->getName().compare("spider") == 0) {
+				// Spider specific update
+				vehicle->onTap_ = [vehicle, this](Vec2 location) {
+					if (vehicle->getPositionY() < -visibleSize_.height / 8.0f) {
+						vehicle->getPhysicsBody()->applyImpulse(Vec2{ 0.0f, 256.0f });
+					}
+				};
+			}
 			actor_->getVehicles().push_back(vehicle);
 		}
         actor_->switchVehicle();
@@ -126,9 +140,10 @@ LeftGear* GameFactory::createLeftGear()
 		leftgear_->setPositionY(visibleSize_.height);
 		leftgear_->setAnchorPoint(Vec2{ 0.0f, 1.0f });
 		leftgear_->setTouchEnabled(true);
-		leftgear_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
-            if (type == ui::Widget::TouchEventType::ENDED) actor_->switchVehicle();
-            return true;
+		leftgear_->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type) {
+			if (type == ui::Widget::TouchEventType::ENDED && actor_->canSwitchVehicle()) { actor_->switchVehicle(); }
+			else { log("Vehicle is not resting"); }
+			return true;
         });
     }
     return leftgear_;
@@ -149,7 +164,7 @@ RightGear* GameFactory::createRightGear()
 		rightgear_->setPositionX(visibleSize_.width);
         rightgear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
         rightgear_->setTouchEnabled(true);
-        rightgear_->addTouchEventListener([&](Ref* sender, ui::Widget::TouchEventType type) {
+        rightgear_->addTouchEventListener([](Ref* sender, ui::Widget::TouchEventType type) {
             if (type == ui::Widget::TouchEventType::ENDED) {
 				log("Should open modal");
             }

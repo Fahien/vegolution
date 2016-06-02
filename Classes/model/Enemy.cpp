@@ -2,7 +2,6 @@
 
 USING_NS_CC;
 
-// Constructor
 Enemy::Enemy(int healthMax, int velocity, int delay, Bullet* bullet)
 	: healthMax_{ healthMax }
 	, health_ { healthMax }
@@ -10,37 +9,55 @@ Enemy::Enemy(int healthMax, int velocity, int delay, Bullet* bullet)
 	, delay_{ delay }
 	, bullet_{ bullet }
 {
-	// Rotate
-	bullet_->setRotation(180.0f);
+	if (!bullet) return;	// End if no shotting
 	// Adjust group
-	bullet_->getPhysicsBody()->setGroup(1);
+	bullet->getPhysicsBody()->setGroup(1);
 	// Enemy bullet category is 8
-	bullet_->getPhysicsBody()->setCategoryBitmask(16);
+	bullet->getPhysicsBody()->setCategoryBitmask(16);
 	// Collide with the main actor
-	bullet_->getPhysicsBody()->setCollisionBitmask(1);
+	bullet->getPhysicsBody()->setCollisionBitmask(1);
 	// Contact test with the main actor
-	bullet_->getPhysicsBody()->setContactTestBitmask(1);
+	bullet->getPhysicsBody()->setContactTestBitmask(1);
+
+	CallFunc* shot{ CallFunc::create([this]() {
+		log("Shot enemy bullet");
+		if (bullet_->getParent()) { bullet_->removeFromParent(); }
+		// Add the bullet to the scene (parent)
+		getParent()->addChild(bullet_);
+		bullet_->setPosition(getPosition());
+		bullet_->setRotation(180.0f); // Shot the main actor
+		bullet_->getPhysicsBody()->setVelocity(Vec2::ZERO);
+		bullet_->getPhysicsBody()->applyImpulse(Vec2{ bullet_->getVelocity(), 0.0f });
+		DelayTime* time{ DelayTime::create(delay_ * 0.25f) };
+		CallFunc* remove{ CallFunc::create([this]() { bullet_->remove(); }) };
+		Sequence* sequence{ Sequence::createWithTwoActions(time, remove) };
+		bullet_->runAction(sequence);
+	}) };	// Shot bullet
+	DelayTime* time{ DelayTime::create(delay_ * 0.25f) };	// And wait delay time
+	Sequence* sequence{ Sequence::createWithTwoActions(shot, time) };
+	runAction(RepeatForever::create(sequence));
 }
 
-// Destructor
 Enemy::~Enemy()
 {
 	log("Releasing enemy bullet");
 	bullet_->release();
 }
 
-// Create method
 Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet)
 {
 	// Construct
 	Enemy* enemy{ new (std::nothrow) Enemy{ healthMax, velocity, delay, bullet } };
 
-	std::string filename{ StringUtils::format("enemy/%s/%s.png", name.c_str(), name.c_str()) };
+	std::string filename{ StringUtils::format("enemy/%s/%s0.png", name.c_str(), name.c_str()) };
     // Initialize                                                                                             
     if (enemy && enemy->initWithFile(filename)) {
 		enemy->setName(name);
         // Hook the template method for creating physics body
         enemy->createPhysicsBody(name);
+		// Set velocity and angular limit
+		enemy->physicsBody_->setVelocityLimit(enemy->velocity_);
+		enemy->physicsBody_->setAngularVelocityLimit(0.0f);
 		// Set group 2
 		enemy->physicsBody_->setGroup(2);
 		// Do not rotate
@@ -53,47 +70,23 @@ Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, B
         enemy->physicsBody_->setCollisionBitmask(11);
         return enemy;
     }
-
+	// Error
 	CC_SAFE_DELETE(enemy);
     return nullptr;
 }
 
-void Enemy::scheduleShot()
+void Enemy::remove()
 {
-	// Create new shot action
-	CallFunc* shot{ CallFunc::create([this]() {
-		log("Shot enemy bullet");
-		if (bullet_->getParent() != nullptr) bullet_->removeFromParent();
-		getParent()->addChild(bullet_);
-		bullet_->setPosition(getPosition());
-		bullet_->getPhysicsBody()->setVelocity(Vec2{ -bullet_->getVelocity(), 0.0f });
-		DelayTime* time{ DelayTime::create(delay_ * 0.25f) };
-		CallFunc* remove{ CallFunc::create([this]() { if (bullet_->getParent() != nullptr) bullet_->removeFromParent(); }) };
-		Sequence* sequence{ Sequence::createWithTwoActions(time, remove) };
-		bullet_->runAction(sequence);
-	}) };
-	// Wait
-	DelayTime* time{ DelayTime::create(delay_ * 0.25f) };
-	Sequence* sequence{ Sequence::createWithTwoActions(shot, time) };
-	runAction(RepeatForever::create(sequence));
+	pause(); // Pause all actions
+	health_ = healthMax_; // Reset health
+	// Reset physics
+	physicsBody_->resetForces();
+	physicsBody_->setVelocity(Vec2::ZERO);
+	physicsBody_->setAngularVelocity(0.0f);
+	// Remove from the scene
+	if (getParent()) { removeFromParentAndCleanup(false); }
 }
 
-// Update method
 void Enemy::update(float delta) {
-	// Get current velocity
-	Vec2 velocity{ physicsBody_->getVelocity() };
-	// Get enemy velocity
-	float enemyVelocity{ -velocity_};
-	// If is not the max velocity
-	if (velocity.x > enemyVelocity) {
-		velocity.x += enemyVelocity * delta * 2.0f; // Increment
-		if (velocity.x < enemyVelocity) {
-			velocity.x = enemyVelocity;
-		}
-	}
-	else {
-		velocity.x -= enemyVelocity * delta * 2.0f; // Decrement
-	}
-	// Set the new velocity
-	physicsBody_->setVelocity(velocity);
+	if (velocity_ > 0.0f) { physicsBody_->applyForce(Vec2{ -velocity_, 0.0f }); } // Walk to the main actor
 }

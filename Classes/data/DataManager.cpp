@@ -145,7 +145,7 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 
 			// Create animation
 			Animation* animation{ Animation::create() };
-			for (int i{ 0 }; i < 8; i++) {
+			for (int i{ 0 }; i < 32; i++) {
 				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", vehiclename.c_str(), vehiclename.c_str(), i);
 				if (!fileUtils_->isFileExist(filename)) break;
 				animation->addSpriteFrameWithFile(filename);
@@ -200,10 +200,28 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			log("Found Enemy[%s][%d][%d][%d][%s]", name, health, velocity, delay, bname);
 			// Get the bullet
 			Bullet* b = getBullet(bulletname);
+			Bullet* bullet{ nullptr };
 			// Clone bullet
-			Bullet* bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
+			if (b) bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
 			// Create the Enemy
 			Enemy* enemy = Enemy::create(enemyname, health, velocity, delay, bullet);
+
+			// Create animation
+			std::string filename = StringUtils::format("enemy/%s/%s1.png", name, name);
+			if (!fileUtils_->isFileExist(filename)) {
+				Animation* animation{ Animation::create() };
+				for (int i{ 0 }; i < 32; i++) {
+					filename = StringUtils::format("enemy/%s/%s%d.png", name, name);
+					if (!fileUtils_->isFileExist(filename)) break;
+					animation->addSpriteFrameWithFile(filename);
+				}
+				animation->setDelayPerUnit(0.0625f);
+				animation->setRestoreOriginalFrame(true);
+				// Loop forever
+				animation->setLoops(-1);
+				enemy->runAction(Animate::create(animation));
+			}
+
             enemies_.push_back(enemy);
         }
     }

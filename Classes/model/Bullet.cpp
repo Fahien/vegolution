@@ -2,7 +2,6 @@
 
 USING_NS_CC;
 
-// Constructor
 Bullet::Bullet(int damage, int velocity)
 	: damage_{ damage }
 	, velocity_{ static_cast<float>(velocity) }
@@ -10,23 +9,21 @@ Bullet::Bullet(int damage, int velocity)
 	log("Creating a bullet");
 }
 
-// Create method
 Bullet* Bullet::create(std::string name, int damage, int velocity)
 {
     // Construct
     Bullet* bullet {new (std::nothrow) Bullet{damage, velocity}};
-
-	std::string filename{ StringUtils::format("bullet/%s.png", name.c_str(), name.c_str()) };
     // Initialize
+	std::string filename{ StringUtils::format("bullet/%s.png", name.c_str(), name.c_str()) };
     if (bullet && bullet->initWithFile(filename)) {
         bullet->setName(name);
 		bullet->setTag(8);
         bullet->createPhysicsBody(name);
+		bullet->physicsBody_->setAngularVelocityLimit(0.0f);
 		// Set group 2
 		bullet->physicsBody_->setGroup(2);
 		// No gravity and no rotation
 		bullet->physicsBody_->setGravityEnable(false);
-		bullet->physicsBody_->setRotationEnable(false);
 		// Contact test with enemy category
 		bullet->physicsBody_->setContactTestBitmask(4);
 		// Player bullet category is 8
@@ -35,8 +32,15 @@ Bullet* Bullet::create(std::string name, int damage, int velocity)
         bullet->physicsBody_->setCollisionBitmask(4);
         return bullet;
     }
-
 	// Error
     CC_SAFE_DELETE(bullet);
     return nullptr;
+}
+
+void Bullet::remove()
+{
+	physicsBody_->resetForces();
+	physicsBody_->setVelocity(Vec2::ZERO);
+	physicsBody_->setAngularVelocity(0.0f);
+	if (getParent()) { removeFromParentAndCleanup(true); }
 }

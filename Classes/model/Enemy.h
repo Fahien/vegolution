@@ -10,7 +10,7 @@ public:
 	Enemy(int healthMax, int velocity, int delay, Bullet* bullet);
 	~Enemy();
 
-	// Create method
+	/// Create method
     static Enemy* create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet);
 
 	inline int getHealthMax() const { return healthMax_; }
@@ -19,8 +19,10 @@ public:
 	inline float getVelocity() const { return velocity_; }
 	inline Bullet* getBullet() const { return bullet_; }
 
-	void scheduleShot();
+	/// Update method
 	void update(float delta);
+	/// Properly remove
+	void remove();
 
 private:
 	int healthMax_;
