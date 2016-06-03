@@ -21,8 +21,8 @@ public:
 	inline cocos2d::Vec2 getTap() const { return tap_; }
 	std::function<void(cocos2d::Vec2)> onTap_;
 
-	void move(float delta);
-	void stop(float delta);
+	void move();
+	void stop();
 
 	// Update function
 	void update(float delta);

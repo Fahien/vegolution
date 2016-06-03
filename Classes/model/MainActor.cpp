@@ -13,44 +13,31 @@ MainActor::~MainActor() {}
 MainActor* MainActor::create()
 {
     // Construct
-    MainActor* actor {new (std::nothrow) MainActor{}};
+    MainActor* actor{ new (std::nothrow) MainActor{} };
     // Initialize
     if (actor && actor->init()) {
         actor->autorelease();
 		actor->scheduleUpdate();
-        return actor;
     }
-	// Error
-    CC_SAFE_DELETE(actor);
-    return nullptr;
+	else { CC_SAFE_DELETE(actor); } // Error
+    return actor;
 }
 
-PhysicsBody* MainActor::getPhysicsBody()
-{
-    if (vehicle_ != nullptr) { return vehicle_->getPhysicsBody(); }
-	else { return nullptr; }
-}
-
-int MainActor::getHealth() const
+float MainActor::getHealth() const
 {
 	return vehicle_->getHealth();
 }
 
-void MainActor::setHealth(int health)
+void MainActor::setHealth(float health)
 {
 	vehicle_->setHealth(health);
 	// Update health listener
-	if (rightgear_) { rightgear_->onVehicleHealthChange(vehicle_); }
+	if (rightGear_) { rightGear_->onVehicleHealthChange(vehicle_); }
 }
 
 void MainActor::tap(Vec2 location)
 {
 	if (vehicle_) { vehicle_->tap(location); }
-}
-
-bool MainActor::canSwitchVehicle()
-{
-	return vehicle_->getPhysicsBody()->getVelocity().lengthSquared() < 4.0f;
 }
 
 bool MainActor::switchVehicle()
@@ -89,6 +76,6 @@ bool MainActor::switchVehicle()
 }
 
 void MainActor::update(float delta) {
-	if (moving_) { vehicle_->move(delta); }
-	else { vehicle_->stop(delta); }
+	if (moving_) { vehicle_->move(); }
+	else { vehicle_->stop(); }
 }

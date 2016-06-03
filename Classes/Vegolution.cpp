@@ -1,11 +1,10 @@
 #include "Vegolution.h"
 #include "main/MainLayer.h"
-#include <array>
 
 USING_NS_CC;
 
 static Size designSize{ 570, 320 };
-static Size windowSize{ 1200, 720 };
+static Size windowSize{ 570, 320 };
 
 // Information about resources
 typedef struct tagResource {
@@ -25,7 +24,6 @@ static Resource smallResource  {Size{ 480,  320}, Size{   0,   0}, "sd"};
 // Declare and array containing the resource descriptions, from largest to smallest
 static std::array<Resource, 3> resources {{largeResource, mediumResource, smallResource}};
 
-// Construct Vegolutions and DataManager
 Vegolution::Vegolution()
 : director_    {nullptr}
 , fileUtils_   {nullptr}
@@ -34,7 +32,6 @@ Vegolution::Vegolution()
     log("Creating Vegolution");
 }
 
-// Destruct DataManager and Vegolution
 Vegolution::~Vegolution()
 {
     log("Destructing Vegolution");
@@ -68,27 +65,24 @@ bool Vegolution::applicationDidFinishLaunching()
     dataManager_.init(fileUtils_);
 
     // Initialize director
-    GLView* glview {director_->getOpenGLView()};
-    if(!glview) {
+    GLView* glView {director_->getOpenGLView()};
+    if(!glView) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
+        glView = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
 #else
-        glview = GLViewImpl::create("Vegolution");
+        glView = GLViewImpl::create("Vegolution");
 #endif
-        director_->setOpenGLView(glview);
+        director_->setOpenGLView(glView);
     }
-
-    // Set display FPS
-    director_->setDisplayStats(false);
 
     // Set FPS. the default value is 1.0/60 if you don't call this
     director_->setAnimationInterval(1.0f / 60.0f);
 
     // Set the design resolution
-    glview->setDesignResolutionSize(designSize.width, designSize.height, ResolutionPolicy::FIXED_HEIGHT);
+    glView->setDesignResolutionSize(designSize.width, designSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
 	// Get the frame size
-    Size frameSize {glview->getFrameSize()};
+    Size frameSize {glView->getFrameSize()};
 	log("Frame size is %.0fx%.0f", frameSize.width, frameSize.height);
 
 	// Vector to build a list of resources paths

@@ -1,11 +1,16 @@
 #ifndef __GAME_LAYER_H__
 #define __GAME_LAYER_H__
 
+static const float deltaMin = 0.0625f;
+
+static const float deltaMax = 0.015625f;
+
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 #include "Vegolution.h"
 #include "GameController.h"
 #include "factory/GameFactory.h"
+#include "factory/HudFactory.h"
 #include "factory/EnemyFactory.h"
 #include "model/MainActor.h"
 
@@ -29,6 +34,7 @@ public:
 private:
     Vegolution* game_;
     GameFactory factory_;
+	HudFactory hudFactory_;
 	EnemyFactory enemyFactory_;
 
 	cocos2d::Layer* menuLayer_{ nullptr };

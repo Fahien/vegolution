@@ -24,14 +24,6 @@ GameFactory::~GameFactory()
 	if (explosion_) { explosion_->release(); }
 }
 
-Vehicle* GameFactory::getVehicle(std::string& vehicleName)
-{
-    // Get the vehicle
-	Vehicle* vehicle{ data_->getVehicle(vehicleName) };
-    vehicle->setPositionX(-offsetX_);
-    return vehicle;
-}
-
 MainActor* GameFactory::createActor()
 {
     if (actor_ == nullptr) {
@@ -105,60 +97,6 @@ Sprite* GameFactory::createBoard()
         board_->setGlobalZOrder(4);
     }
     return board_;
-}
-
-LeftGear* GameFactory::createLeftGear()
-{
-    if (leftgear_ == nullptr) {
-        log("Creating left gear");
-		leftgear_ = LeftGear::create();
-		// Add this vehicle listener
-		actor_->addGear(leftgear_);
-		// Update texture
-		leftgear_->onVehicleChange(actor_->getVehicle());
-		leftgear_->setPositionY(visibleSize_.height);
-		leftgear_->setAnchorPoint(Vec2{ 0.0f, 1.0f });
-		leftgear_->setTouchEnabled(true);
-		leftgear_->addTouchEventListener([this](Ref* sender, ui::Widget::TouchEventType type) {
-			if (type == ui::Widget::TouchEventType::ENDED && actor_->canSwitchVehicle()) { actor_->switchVehicle(); }
-			else { log("Vehicle is not resting"); }
-			return true;
-        });
-    }
-    return leftgear_;
-}
-
-RightGear* GameFactory::createRightGear()
-{
-    if (rightgear_ == nullptr) {
-        log("Creating right gear");
-        rightgear_ = RightGear::create();
-		// Set vehicle health listener
-		actor_->setRightGear(rightgear_);
-		// Add to vehicle change listener
-		actor_->addGear(rightgear_);
-		std::string filename{ "misc/rightgear.png" };
-		rightgear_->loadTexture(filename);
-        rightgear_->setPositionY(visibleSize_.height);
-		rightgear_->setPositionX(visibleSize_.width);
-        rightgear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
-        rightgear_->setTouchEnabled(true);
-        rightgear_->addTouchEventListener([](Ref* sender, ui::Widget::TouchEventType type) {
-            if (type == ui::Widget::TouchEventType::ENDED) {
-				log("Should open modal");
-            }
-            return true;
-        });
-
-		filename = std::string{ "misc/rightgear-health.png" };
-		Sprite* health{ Sprite::create(filename) };
-		Size size{ rightgear_->getContentSize() };
-		health->setPosition(Vec2{ size.width / (2.0f - 0.0625f), size.height / 1.03125f });
-		health->setAnchorPoint(Vec2{ 0.0f, 1.0f });
-		rightgear_->setHealthBar(health);
-		rightgear_->addChild(health);
-    }
-    return rightgear_;
 }
 
 void GameFactory::createExplosion(Sprite* node)

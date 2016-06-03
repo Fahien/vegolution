@@ -106,7 +106,7 @@ void Parallax::update(float delta)
             }
             // Set other backgrounds velocity
             else if (velFactor != 0.0f) {
-				Vec2 velocity{ actor_->getPhysicsBody()->getVelocity() };
+				Vec2 velocity{ actor_->getVehicle()->getPhysicsBody()->getVelocity() };
                 velocity *= velFactor;
                 velocity.y = 0.0f;
                 background->getPhysicsBody()->setVelocity(velocity);

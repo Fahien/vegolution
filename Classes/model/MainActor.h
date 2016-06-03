@@ -16,7 +16,6 @@ public:
     inline float getOffsetX() const { return offsetX_; }
 	inline void setOffsetX(float offsetX) { offsetX_ = offsetX; }
 
-	inline bool isMoving() const { return moving_; }
 	inline void setMoving(bool moving) { moving_ = moving; }
 
     inline std::vector<Vehicle*>& getVehicles() { return vehicles_; }
@@ -25,21 +24,17 @@ public:
 	inline Vehicle* getVehicle() const { return vehicle_; }
 	/// Switch the current vehicle to the next
 	bool switchVehicle();
-	/// Get the current vehicle physics body
-	cocos2d::PhysicsBody* getPhysicsBody();
 	/// Get the current vehicle health
-	int getHealth() const;
+	float getHealth() const;
 	/// Set the current vehicle health
-	void setHealth(int health);
+	void setHealth(float health);
 	/// Implement specific functionality for vehicle
 	void tap(cocos2d::Vec2 location);
-	/// Tests whether could switch vehicle
-	bool canSwitchVehicle();
 
 	/// Add a gear vehicle listener
 	inline void addGear(Gear* gear) { gears_.push_back(gear); }
 	/// Set the right gear vehicle health listener
-	inline void setRightGear(RightGear* gear) { rightgear_ = gear; }
+	inline void setRightGear(RightGear* gear) { rightGear_ = gear; }
 
 	/// Update method
 	void update(float delta);
@@ -47,7 +42,7 @@ public:
 private:
 	// Vehicle offset
     float offsetX_;
-	// Wether is moving
+	// Whether is moving
 	bool moving_;
 
 	// Current vehicle
@@ -58,7 +53,7 @@ private:
 	// Vehicle listeners
 	std::vector<Gear*> gears_;
 	// Vehicle health listener
-	RightGear* rightgear_{ nullptr };
+	RightGear* rightGear_{ nullptr };
 };
 
 #endif // __MAIN_ACTOR_H__

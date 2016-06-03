@@ -3,10 +3,11 @@
 USING_NS_CC;
 
 GameLayer::GameLayer(Vegolution* game)
-: game_{ game }
-, factory_{ game }
-, enemyFactory_{ game->getDataManager() }
-, offsetX_{ game->getDirector()->getVisibleSize().width / 4 }
+        : game_{ game }
+        , factory_{ game }
+        , hudFactory_{ game->getDirector()->getVisibleSize() }
+        , enemyFactory_{ game->getDataManager() }
+        , offsetX_{ game->getDirector()->getVisibleSize().width / 4 }
 {}
 
 GameLayer* GameLayer::create(Vegolution* game)
@@ -58,13 +59,13 @@ bool GameLayer::init()
 
     // Get the left gear
     log("Getting left gear");
-	LeftGear* leftgear{ factory_.createLeftGear() };
-    menuLayer_->addChild(leftgear, -1);
+	ui::ImageView* leftGear{ hudFactory_.getLeftGear(actor_) };
+    menuLayer_->addChild(leftGear, -1);
 
 	// Get the right gear
 	log("Getting right gear");
-	ui::ImageView* rightgear{ factory_.createRightGear() };
-	menuLayer_->addChild(rightgear, -2);
+	ui::ImageView* rightGear{ hudFactory_.getRightGear(actor_) };
+	menuLayer_->addChild(rightGear, -2);
 
     // Get the board
     board_ = factory_.createBoard();
@@ -89,7 +90,7 @@ bool GameLayer::init()
 void GameLayer::update(float delta)
 {
 	// Step physics
-	scene_->getPhysicsWorld()->step(MAX(MIN(0.0625f, delta), 0.015625f));
+	scene_->getPhysicsWorld()->step(MAX(MIN(deltaMin, delta), deltaMax));
     // Get the right center X
     centerX_ = actor_->getPositionX() + actor_->getVehicle()->getPositionX() + actor_->getOffsetX();
     // Update the camera X
@@ -160,7 +161,6 @@ void GameLayer::listenEnemyBullet()
 {
 	EventListenerPhysicsContactWithGroup* contactListener{ EventListenerPhysicsContactWithGroup::create(1) };
 	contactListener->onContactBegin = [this](PhysicsContact& contact) {
-		log("Actor hit");
 		Bullet* bullet{ nullptr };
 		Node* nodeA{ contact.getShapeA()->getBody()->getNode() };
 		Node* nodeB{ contact.getShapeB()->getBody()->getNode() };
@@ -174,7 +174,6 @@ void GameLayer::listenEnemyBullet()
 		if (actor_->getHealth() <= 0) {
 			DelayTime* time{ DelayTime::create(0.125f) };
 			CallFunc* remove{ CallFunc::create([this]() {
-				Vehicle* vehicle {actor_->getVehicle()};
 				if (actor_->getHealth() <= 0) {
 					if (actor_->getVehicles().empty()) {
 						log("Should game over");

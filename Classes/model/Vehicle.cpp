@@ -15,7 +15,7 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, Vec2 of
 	, onTap_ { nullptr }
 {
 	scheduleUpdate();		// Adjusting velocity, rotation and specific updates
-	if (!bullet_) return;	// End if no shotting
+	if (!bullet_) return;	// End if no shot
 
 	CallFunc* shot{ CallFunc::create([this]() {
 		log("Shot bullet");
@@ -70,12 +70,12 @@ Vehicle* Vehicle::create(std::string vehiclename, int healthMax, int velocity, i
     return nullptr;
 }
 
-void Vehicle::move(float delta)
+void Vehicle::move()
 {
 	physicsBody_->applyForce(Vec2{ velocity_, 0.0f });
 }
 
-void Vehicle::stop(float delta)
+void Vehicle::stop()
 {
 	if (physicsBody_->getVelocity() != Vec2::ZERO) { physicsBody_->applyForce(-physicsBody_->getVelocity() * 2.0f); }
 }
@@ -92,7 +92,7 @@ void Vehicle::update(float delta)
 	float velocity{ physicsBody_->getVelocity().x };
 	if (velocity < 0.0f) { 
 		log("Adjusting negative velocity");
-		physicsBody_->applyForce(Vec2{ -velocity * 2.0f, 0.0f });
+		physicsBody_->applyForce(Vec2{ -velocity * 4.0f, 0.0f });
 	}
 	// Adjust rotation
 	float rotation{ physicsBody_->getRotation() };

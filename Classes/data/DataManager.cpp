@@ -16,13 +16,10 @@ DataManager::~DataManager() {
 void DataManager::init(FileUtils* fileUtils)
 {
     fileUtils_ = fileUtils;
-
     // Open a connection
 	int open_result{ this->open() };
-    if (open_result != SQLITE_OK) {
-        log("Could not open database file %d: %s", open_result, sqlite3_errmsg(db_));
-        return;
-    }
+    // Check open error
+    if (open_result != SQLITE_OK) { log("Could not open database file %d: %s", open_result, sqlite3_errmsg(db_)); }
 }
 
 int DataManager::open()
@@ -67,7 +64,7 @@ std::vector<Bullet*>& DataManager::getBullets()
 
 	// Initialize variables
 	sqlite3_stmt* statement{ nullptr };
-	std::string sql{ "SELECT * FROM bullet" };
+	std::string sql{ selectAllFromBullet };
 
 	// Prepare the statement
 	if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
@@ -77,15 +74,15 @@ std::vector<Bullet*>& DataManager::getBullets()
 		// Step
 		while (sqlite3_step(statement) == SQLITE_ROW) {
 			// Get name
-			const unsigned char* name = sqlite3_column_text(statement, 0);
-			std::string imagename = std::string((char*)name);
+			const unsigned char* nam = sqlite3_column_text(statement, 0);
+			std::string name = std::string((char*)nam);
 			// Get damage
 			int damage = sqlite3_column_int(statement, 1);
 			// Get velocity
-			int velocity = sqlite3_column_int(statement, 2);
-			log("Found Bullet[%s][%d][%d]", name, damage, velocity);
+			float velocity = static_cast<float>(sqlite3_column_int(statement, 2));
+			log("Found Bullet[%s][%d][%f]", nam, damage, velocity);
 			// Create the bullet
-			Bullet* bullet = Bullet::create(imagename, damage, velocity);
+			Bullet* bullet = Bullet::create(name, damage, velocity);
 			bullets_.push_back(bullet);
 		}
 	}
@@ -115,8 +112,8 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 		// Step
 		while (sqlite3_step(statement) == SQLITE_ROW) {
 			// Get name
-			const unsigned char* name = sqlite3_column_text(statement, 0);
-			std::string vehiclename = std::string((char*)name);
+			const unsigned char* nam = sqlite3_column_text(statement, 0);
+			std::string name = std::string((char*)nam);
 			// Get health
 			int health = sqlite3_column_int(statement, 1);
 			// Get velocity
@@ -125,9 +122,9 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			int delay = sqlite3_column_int(statement, 3);
 			// Get bullet
 			const unsigned char* bname = sqlite3_column_text(statement, 4);
-			std::string bulletname = std::string((char*)bname);
-			log("Found Vehicle[%s][%d][%d][%s]", name, health, velocity, bname);
-			Bullet* bullet = getBullet(bulletname);
+			std::string bulletName = std::string((char*)bname);
+			log("Found Vehicle[%s][%d][%d][%s]", nam, health, velocity, bname);
+			Bullet* bullet = getBullet(bulletName);
 			// Get offset
 			int offsetX = sqlite3_column_int(statement, 5);
 			int offsetY = sqlite3_column_int(statement, 6);
@@ -136,20 +133,19 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			bool gravity = sqlite3_column_int(statement, 7) == 1;
 
 			// Create the Vehicle
-			Vehicle* vehicle = Vehicle::create(vehiclename, health, velocity, delay, bullet, offset, gravity);
+			Vehicle* vehicle = Vehicle::create(name, health, velocity, delay, bullet, offset, gravity);
 
 			// Create animation
 			Animation* animation{ Animation::create() };
 			for (int i{ 0 }; i < 32; i++) {
-				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", name, name, i);
+				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", nam, nam, i);
 				if (!fileUtils_->isFileExist(filename)) break;
 				animation->addSpriteFrameWithFile(filename);
 			}
 			animation->setDelayPerUnit(0.0625f);
 			animation->setRestoreOriginalFrame(true);
-			// Loop forever
-			animation->setLoops(-1);
-			vehicle->runAction(Animate::create(animation));
+			Animate* animate{ Animate::create(animation) };
+			vehicle->runAction(RepeatForever::create(animate));
 
 			// Save vehicle
 			vehicles_.push_back(vehicle);
@@ -181,8 +177,8 @@ std::vector<Enemy*>& DataManager::getEnemies()
         // Step
         while (sqlite3_step(statement) == SQLITE_ROW) {
 			// Get the name
-            const unsigned char* name = sqlite3_column_text(statement, 0);
-            std::string enemyname = std::string((char*)name);
+            const unsigned char* nam = sqlite3_column_text(statement, 0);
+            std::string enemyName = std::string((char*)nam);
 			// Get health
 			int health = sqlite3_column_int(statement, 1);
 			// Get velocity
@@ -191,10 +187,10 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			int delay = sqlite3_column_int(statement, 3);
 			// Get bullet name
 			const unsigned char* bname = sqlite3_column_text(statement, 4);
-			std::string bulletname = std::string((char*)bname);
-			log("Found Enemy[%s][%d][%d][%d][%s]", name, health, velocity, delay, bname);
+			std::string bulletName = std::string((char*)bname);
+			log("Found Enemy[%s][%d][%d][%d][%s]", nam, health, velocity, delay, bname);
 			// Get the bullet
-			Bullet* b = getBullet(bulletname);
+			Bullet* b = getBullet(bulletName);
 			Bullet* bullet{ nullptr };
 			// Clone bullet
 			if (b) bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
@@ -203,22 +199,21 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			// Get y
 			int y = sqlite3_column_int(statement, 6);
 			// Create the Enemy
-			Enemy* enemy = Enemy::create(enemyname, health, velocity, delay, bullet, gravity, y);
+			Enemy* enemy = Enemy::create(enemyName, health, velocity, delay, bullet, gravity, y);
 
 			// Create animation
-			std::string filename = StringUtils::format("enemy/%s/%s1.png", name, name);
+			std::string filename = StringUtils::format("enemy/%s/%s1.png", nam, nam);
 			if (fileUtils_->isFileExist(filename)) {
 				Animation* animation{ Animation::create() };
 				for (int i{ 0 }; i < 32; i++) {
-					filename = StringUtils::format("enemy/%s/%s%d.png", name, name, i);
+					filename = StringUtils::format("enemy/%s/%s%d.png", nam, nam, i);
 					if (!fileUtils_->isFileExist(filename)) break;
 					animation->addSpriteFrameWithFile(filename);
 				}
 				animation->setDelayPerUnit(0.0625f);
 				animation->setRestoreOriginalFrame(true);
-				// Loop forever
-				animation->setLoops(-1);
-				enemy->runAction(Animate::create(animation));
+                Animate* animate {Animate::create(animation)};
+				enemy->runAction(RepeatForever::create(animate));
 			}
 
             enemies_.push_back(enemy);
@@ -234,24 +229,14 @@ std::vector<Enemy*>& DataManager::getEnemies()
 }
 
 
-Bullet* DataManager::getBullet(std::string& bulletname)
+Bullet* DataManager::getBullet(std::string& name)
 {
 	for (Bullet* bullet : getBullets()) {
-		if (bullet->getName() == bulletname) return bullet;
+		if (bullet->getName() == name) return bullet;
 	}
-	log("Bullet %s not found!", bulletname.c_str());
+	log("Bullet %s not found!", name.c_str());
 	return nullptr;
 }
-
-Vehicle* DataManager::getVehicle(std::string& vehiclename)
-{
-	for (Vehicle* vehicle : getVehicles()) {
-		if (vehicle->getName() == vehiclename) return vehicle;
-	}
-	log("Vehicle %s not found!", vehiclename.c_str());
-	return nullptr;
-}
-void DataManager::save(std::string key, std::string value) {}
 
 std::string DataManager::getString(std::string key) {
     // Initialize variables

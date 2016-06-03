@@ -18,21 +18,14 @@ public:
     GameFactory(Vegolution* game);
     ~GameFactory();
 
-	Vehicle* getVehicle(std::string& vehiclename);
-
     MainActor* createActor();
     Terrain2D* createTerrain();
     Parallax* createParallax();
     cocos2d::Sprite* createBoard();
 
-    LeftGear* createLeftGear();
-	RightGear* createRightGear();
+    void createExplosion(cocos2d::Sprite* node);
 
-	void createExplosion(cocos2d::Sprite* node);
 private:
-	// SMELL variable
-	bool jumping_;
-
     Vegolution* game_;
     DataManager* data_;
 
@@ -43,15 +36,11 @@ private:
 
 	std::vector<Bullet*> bullets_;
 	std::vector<Vehicle*> vehicles_;
-    std::vector<Enemy*> enemyPool_;
 
 	MainActor* actor_{ nullptr };
 	Terrain2D* terrain_{ nullptr };
 	Parallax* parallax_{ nullptr };
 	cocos2d::Sprite* board_{ nullptr };
-
-	LeftGear* leftgear_{ nullptr };
-	RightGear* rightgear_{ nullptr };
 
 	Explosion* explosion_{ nullptr };
 };

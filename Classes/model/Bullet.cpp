@@ -2,19 +2,17 @@
 
 USING_NS_CC;
 
-Bullet::Bullet(int damage, int velocity)
+Bullet::Bullet(int damage, float velocity)
 	: damage_{ damage }
-	, velocity_{ static_cast<float>(velocity) }
-{
-	log("Creating a bullet");
-}
+	, velocity_{ velocity }
+{}
 
-Bullet* Bullet::create(std::string name, int damage, int velocity)
+Bullet* Bullet::create(std::string name, int damage, float velocity)
 {
     // Construct
     Bullet* bullet {new (std::nothrow) Bullet{damage, velocity}};
     // Initialize
-	std::string filename{ StringUtils::format("bullet/%s.png", name.c_str(), name.c_str()) };
+	std::string filename{ StringUtils::format("bullet/%s.png", name.c_str()) };
     if (bullet && bullet->initWithFile(filename)) {
         bullet->setName(name);
 		bullet->setTag(8);

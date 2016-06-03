@@ -3,12 +3,11 @@
 
 #include "Actor.h"
 
-class Bullet : public Actor
-{
+class Bullet : public Actor {
 public:
-	Bullet(int damage, int velocity);
+	Bullet(int damage, float velocity);
 
-    static Bullet* create(std::string imagename, int damage, int velocity);
+    static Bullet* create(std::string name, int damage, float velocity);
 
     inline int getDamage() const { return damage_; }
 	inline float getVelocity() const { return velocity_; }

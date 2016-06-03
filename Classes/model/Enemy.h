@@ -14,7 +14,7 @@ public:
 
 	inline int getHealthMax() const { return healthMax_; }
     inline int getHealth() const { return health_; }
-    inline void setHealth(unsigned health) { health_ = health; }
+    inline void setHealth(int health) { health_ = health; }
 	inline float getVelocity() const { return velocity_; }
 	inline float getOffsetY() const { return offsetY_; }
 	inline Bullet* getBullet() const { return bullet_; }

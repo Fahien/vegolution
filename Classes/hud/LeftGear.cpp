@@ -4,6 +4,6 @@ USING_NS_CC;
 
 void LeftGear::onVehicleChange(Vehicle* vehicle)
 {
-	filename_ = StringUtils::format("misc/leftgear-%s.png", vehicle->getName().c_str());
-	loadTexture(filename_);
+	std::string filename { StringUtils::format("hud/left-gear-%s.png", vehicle->getName().c_str()) };
+	loadTexture(filename);
 }
