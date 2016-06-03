@@ -77,8 +77,9 @@ ui::Text* MainFactory::createPlayText()
 				case ui::Widget::TouchEventType::ENDED :
 					target->runAction(ScaleTo::create(0.125f, 1.0f));
                     scene = GameLayer::createScene(this->game_);
-                    if (this->director_ == nullptr) log ("Director is null");
-                    this->director_->replaceScene(scene);
+                    if (director_ == nullptr) log ("Director is null");
+                    director_->replaceScene(scene);
+					target->setTouchEnabled(false);
 					break;
 				case ui::Widget::TouchEventType::CANCELED :
 					target->runAction(ScaleTo::create(0.125f, 1.0f));

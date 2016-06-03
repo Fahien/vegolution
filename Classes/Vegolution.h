@@ -53,7 +53,7 @@ public:
 	/**
 	 * @return	The DataManager instance pointer
 	 */
-    inline DataManager*	       getDataManager()	    { return &dataManager_; }
+	DataManager* getDataManager() { return &dataManager_; }
 
 private:
     cocos2d::Director*  director_;

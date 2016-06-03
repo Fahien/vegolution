@@ -9,23 +9,8 @@ DataManager::DataManager()
 
 
 DataManager::~DataManager() {
-	// Close the connection
-	close();
-	// Release enemies
-	log("Releasing enemies");
-	for (Enemy* enemy : enemies_) {
-		enemy->release();
-	}
-	// Release vehicles
-	log("Releasing vehicles");
-	for (Vehicle* vehicle : vehicles_) {
-		vehicle->release();
-	}
-	// Release bullets
-	log("Releasing bullets");
-	for (Bullet* bullet : bullets_) {
-		bullet->release();
-	}
+	release(); // Release resources
+	close(); // Close the connection
 }
 
 void DataManager::init(FileUtils* fileUtils)
@@ -42,21 +27,31 @@ void DataManager::init(FileUtils* fileUtils)
 
 int DataManager::open()
 {
-    log("Opening Data");
+	log("Opening Data");
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    // In Android get a writable path
-    std::string path {fileUtils_->getWritablePath() + "data.db"};
-    // Get data from the internal database
-    log("Creating data");
-    Data data {fileUtils_->getDataFromFile("data.db")};
-    // Write data to an external database
-    fileUtils_->writeDataToFile(data, path);
-    // return sqlite3_open_v2(path.c_str(), &db_, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) == SQLITE_OK;
-    return sqlite3_open(path.c_str(), &db_);
+	// In Android get a writable path
+	std::string path{ fileUtils_->getWritablePath() + "data.db" };
+	// Get data from the internal database
+	log("Creating data");
+	Data data{ fileUtils_->getDataFromFile("data.db") };
+	// Write data to an external database
+	fileUtils_->writeDataToFile(data, path);
+	// return sqlite3_open_v2(path.c_str(), &db_, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) == SQLITE_OK;
+	return sqlite3_open(path.c_str(), &db_);
 #else
-    std::string path {fileUtils_->fullPathForFilename("data.db")};
-    return sqlite3_open(path.c_str(), &db_);
+	std::string path{ fileUtils_->fullPathForFilename("data.db") };
+	return sqlite3_open(path.c_str(), &db_);
 #endif
+}
+
+void DataManager::release()
+{
+	log("Releasing enemies");
+	for (Enemy* enemy : enemies_) { enemy->release(); }
+	log("Releasing vehicles");
+	for (Vehicle* vehicle : vehicles_) { vehicle->release(); }
+	log("Releasing bullets");
+	for (Bullet* bullet : bullets_) { bullet->release(); }
 }
 
 void DataManager::close()
@@ -146,7 +141,7 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			// Create animation
 			Animation* animation{ Animation::create() };
 			for (int i{ 0 }; i < 32; i++) {
-				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", vehiclename.c_str(), vehiclename.c_str(), i);
+				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", name, name, i);
 				if (!fileUtils_->isFileExist(filename)) break;
 				animation->addSpriteFrameWithFile(filename);
 			}
@@ -203,15 +198,19 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			Bullet* bullet{ nullptr };
 			// Clone bullet
 			if (b) bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
+			// Get gravity
+			bool gravity = sqlite3_column_int(statement, 5) == 1;
+			// Get y
+			int y = sqlite3_column_int(statement, 6);
 			// Create the Enemy
-			Enemy* enemy = Enemy::create(enemyname, health, velocity, delay, bullet);
+			Enemy* enemy = Enemy::create(enemyname, health, velocity, delay, bullet, gravity, y);
 
 			// Create animation
 			std::string filename = StringUtils::format("enemy/%s/%s1.png", name, name);
-			if (!fileUtils_->isFileExist(filename)) {
+			if (fileUtils_->isFileExist(filename)) {
 				Animation* animation{ Animation::create() };
 				for (int i{ 0 }; i < 32; i++) {
-					filename = StringUtils::format("enemy/%s/%s%d.png", name, name);
+					filename = StringUtils::format("enemy/%s/%s%d.png", name, name, i);
 					if (!fileUtils_->isFileExist(filename)) break;
 					animation->addSpriteFrameWithFile(filename);
 				}

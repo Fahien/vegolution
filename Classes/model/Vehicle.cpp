@@ -10,6 +10,7 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, Vec2 of
 	, delay_{ delay }
 	, bullet_{ bullet }
 	, offset_{ offset }
+	, tap_{ Vec2::ZERO }
 	, specificUpdate_{ nullptr }
 	, onTap_ { nullptr }
 {
@@ -100,5 +101,5 @@ void Vehicle::update(float delta)
 		rotation -= rotation * delta;
 		physicsBody_->setRotation(rotation);
 	}
-	if (specificUpdate_ != nullptr) specificUpdate_(delta);
+	if (specificUpdate_) specificUpdate_(delta);
 }

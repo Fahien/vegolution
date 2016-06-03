@@ -5,7 +5,8 @@
 #include "ui/CocosGUI.h"
 #include "Vegolution.h"
 #include "GameController.h"
-#include "GameFactory.h"
+#include "factory/GameFactory.h"
+#include "factory/EnemyFactory.h"
 #include "model/MainActor.h"
 
 class GameLayer : public cocos2d::Layer
@@ -28,6 +29,7 @@ public:
 private:
     Vegolution* game_;
     GameFactory factory_;
+	EnemyFactory enemyFactory_;
 
 	cocos2d::Layer* menuLayer_{ nullptr };
 

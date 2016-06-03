@@ -11,6 +11,7 @@ GameController::GameController(MainActor* actor, const Size contentSize)
     onTouchBegan = [this](Touch* touch, Event* event) {
 		actor_->setMoving(touch->getLocationInView().x > centerX_);
 		Vec2 location{ touch->getLocation() };
+		log("Tap at (%.0f, %.0f)", location.x, location.y);
 		location.y -= centerY_;
 		actor_->tap(location);
         return true;

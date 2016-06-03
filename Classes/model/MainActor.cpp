@@ -2,7 +2,11 @@
 
 USING_NS_CC;
 
-MainActor::MainActor() { setName("Celly"); }
+MainActor::MainActor()
+	: offsetX_{ 0.0f }
+	, moving_ { false }
+	, vehicle_{ nullptr }
+{ setName("Celly"); }
 
 MainActor::~MainActor() {}
 

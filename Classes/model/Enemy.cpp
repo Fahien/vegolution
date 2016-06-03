@@ -2,11 +2,12 @@
 
 USING_NS_CC;
 
-Enemy::Enemy(int healthMax, int velocity, int delay, Bullet* bullet)
+Enemy::Enemy(int healthMax, int velocity, int delay, int offsetY, Bullet* bullet)
 	: healthMax_{ healthMax }
 	, health_ { healthMax }
 	, velocity_{ static_cast<float>(velocity) }
 	, delay_{ delay }
+	, offsetY_{ static_cast<float>(offsetY) }
 	, bullet_{ bullet }
 {
 	if (!bullet) return;	// End if no shotting
@@ -20,7 +21,6 @@ Enemy::Enemy(int healthMax, int velocity, int delay, Bullet* bullet)
 	bullet->getPhysicsBody()->setContactTestBitmask(1);
 
 	CallFunc* shot{ CallFunc::create([this]() {
-		log("Shot enemy bullet");
 		if (bullet_->getParent()) { bullet_->removeFromParent(); }
 		// Add the bullet to the scene (parent)
 		getParent()->addChild(bullet_);
@@ -44,10 +44,10 @@ Enemy::~Enemy()
 	bullet_->release();
 }
 
-Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet)
+Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet, bool gravity, int y)
 {
 	// Construct
-	Enemy* enemy{ new (std::nothrow) Enemy{ healthMax, velocity, delay, bullet } };
+	Enemy* enemy{ new (std::nothrow) Enemy{ healthMax, velocity, delay, y, bullet } };
 
 	std::string filename{ StringUtils::format("enemy/%s/%s0.png", name.c_str(), name.c_str()) };
     // Initialize                                                                                             
@@ -55,8 +55,9 @@ Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, B
 		enemy->setName(name);
         // Hook the template method for creating physics body
         enemy->createPhysicsBody(name);
+		// Set gravity
+		enemy->physicsBody_->setGravityEnable(gravity);
 		// Set velocity and angular limit
-		enemy->physicsBody_->setVelocityLimit(enemy->velocity_);
 		enemy->physicsBody_->setAngularVelocityLimit(0.0f);
 		// Set group 2
 		enemy->physicsBody_->setGroup(2);
@@ -75,6 +76,13 @@ Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, B
     return nullptr;
 }
 
+void Enemy::spawn(Vec2 position)
+{
+	position.y += offsetY_;
+	log("Spawning %s at (%.2f, %.2f)", getName().c_str(), position.x, position.y);
+	setPosition(position);
+}
+
 void Enemy::remove()
 {
 	pause(); // Pause all actions
@@ -88,5 +96,8 @@ void Enemy::remove()
 }
 
 void Enemy::update(float delta) {
-	if (velocity_ > 0.0f) { physicsBody_->applyForce(Vec2{ -velocity_, 0.0f }); } // Walk to the main actor
+	// Walk to the main actor
+	if (physicsBody_->getVelocity().x > -velocity_) {
+		physicsBody_->applyForce(Vec2{ -velocity_, 0.0f });
+	}
 }

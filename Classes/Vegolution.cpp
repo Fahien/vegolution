@@ -4,7 +4,7 @@
 
 USING_NS_CC;
 
-static Size designResolutionSize{ 570, 320 };
+static Size designSize{ 570, 320 };
 static Size windowSize{ 1200, 720 };
 
 // Information about resources
@@ -85,7 +85,7 @@ bool Vegolution::applicationDidFinishLaunching()
     director_->setAnimationInterval(1.0f / 60.0f);
 
     // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::FIXED_HEIGHT);
+    glview->setDesignResolutionSize(designSize.width, designSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
 	// Get the frame size
     Size frameSize {glview->getFrameSize()};
@@ -104,7 +104,7 @@ bool Vegolution::applicationDidFinishLaunching()
             log("Searching in %s", resource.directory);
             // If we haven't already determined the scale factor
             if (scaleFactor == -1) {
-                scaleFactor = resource.size.height / designResolutionSize.height;
+                scaleFactor = resource.size.height / designSize.height;
             }
             break;
         }

@@ -48,10 +48,10 @@ private:
 	// Vehicle offset
     float offsetX_;
 	// Wether is moving
-	bool moving_{ false };
+	bool moving_;
 
 	// Current vehicle
-	Vehicle* vehicle_{ nullptr };
+	Vehicle* vehicle_;
 	// Vehicles
     std::vector<Vehicle*> vehicles_;
 

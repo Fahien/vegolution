@@ -5,6 +5,7 @@ USING_NS_CC;
 GameLayer::GameLayer(Vegolution* game)
 : game_{ game }
 , factory_{ game }
+, enemyFactory_{ game->getDataManager() }
 , offsetX_{ game->getDirector()->getVisibleSize().width / 4 }
 {}
 
@@ -100,13 +101,18 @@ void GameLayer::update(float delta)
 void GameLayer::scheduleSpawning()
 {
 	CallFunc* spawn{ CallFunc::create([this]() {
-		Enemy* enemy{ factory_.spawnEnemy() };
+		Vec2 position { actor_->getVehicle()->getPositionX() + actor_->getOffsetX() * 8.0f, 0.0f };
+		Enemy* enemy{ enemyFactory_.spawn(position) };
 		if (enemy == nullptr) return;
-		log("Spawning enemy %s", enemy->getName().c_str());
-		enemy->setPositionX(centerX_ + actor_->getOffsetX() * 3);
-		enemy->setPositionY(actor_->getPositionY());
 		addChild(enemy, 1);
 		enemy->resume();
+		DelayTime* time{ DelayTime::create(32.0f) };
+		CallFunc* despawn{ CallFunc::create([enemy, this]() {
+			factory_.createExplosion(enemy);
+			enemyFactory_.despawn(enemy);
+		}) };
+		Sequence* sequence{ Sequence::createWithTwoActions(time, despawn) };
+		enemy->runAction(sequence);
 	}) };
 	DelayTime* delay{ DelayTime::create(3.0f) };
 	Sequence* sequence{ Sequence::createWithTwoActions(delay, spawn) };
@@ -140,7 +146,7 @@ void GameLayer::listenPlayerBullet()
 		enemy->setHealth(enemy->getHealth() - bullet->getDamage());
 		if (enemy->getHealth() <= 0) {
 			DelayTime* time{ DelayTime::create(0.125f) };
-			CallFunc* remove{ CallFunc::create([this, enemy]() { factory_.despawnEnemy(enemy); }) };
+			CallFunc* remove{ CallFunc::create([this, enemy]() { enemyFactory_.despawn(enemy); }) };
 			TintTo* white{ TintTo::create(0.0f, Color3B::WHITE) };
 			enemy->runAction(Sequence::create(time, white, remove, nullptr));
 		}

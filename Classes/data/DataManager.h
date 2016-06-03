@@ -18,6 +18,8 @@ public:
     int open();
     void close();
 
+	void release();
+
 	std::vector<Bullet*>& getBullets();
 	std::vector<Vehicle*>& getVehicles();
     std::vector<Enemy*>& getEnemies();
