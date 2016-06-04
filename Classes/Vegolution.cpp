@@ -1,10 +1,10 @@
 #include "Vegolution.h"
-#include "main/MainLayer.h"
+#include "scene/SplashScene.h"
 
 USING_NS_CC;
 
 static Size designSize{ 570, 320 };
-static Size windowSize{ 570, 320 };
+static Size windowSize{ 1024, 544 };
 
 // Information about resources
 typedef struct tagResource {
@@ -47,6 +47,12 @@ void Vegolution::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
+void Vegolution::initDataManager()
+{
+    // Initialize the DataManager
+    dataManager_.init(fileUtils_);
+}
+
 // If you want to use packages manager to install more packages, 
 // don't modify or remove this function
 static int register_all_packages()
@@ -61,8 +67,6 @@ bool Vegolution::applicationDidFinishLaunching()
     director_  = Director::getInstance();
 	// Get FileUtils instance
     fileUtils_ = FileUtils::getInstance();
-	// Initialize the DataManager
-    dataManager_.init(fileUtils_);
 
     // Initialize director
     GLView* glView {director_->getOpenGLView()};
@@ -111,7 +115,7 @@ bool Vegolution::applicationDidFinishLaunching()
     register_all_packages();
 
     // Create the main scene. it's an autorelease object
-    Scene* scene {MainLayer::createScene(this)};
+    Scene* scene {SplashScene::create(this)};
 
     // Run now!
     director_->runWithScene(scene);

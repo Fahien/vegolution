@@ -13,6 +13,7 @@ static const float deltaMax = 0.015625f;
 #include "factory/HudFactory.h"
 #include "factory/EnemyFactory.h"
 #include "model/MainActor.h"
+#include "main/MainLayer.h"
 
 class GameLayer : public cocos2d::Layer
 {

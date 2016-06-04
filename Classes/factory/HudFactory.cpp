@@ -59,7 +59,7 @@ RightGear* HudFactory::getRightGear(MainActor* actor)
         filename = std::string{ "hud/right-gear-health.png" };
         Sprite* health{ Sprite::create(filename) };
         Size size{ rightGear_->getContentSize() };
-        health->setPosition(Vec2{ 0.0f, size.height });
+        health->setPosition(Vec2{ size.width / 6.0f, size.height });
         health->setAnchorPoint(Vec2{ 0.0f, 1.0f });
         rightGear_->setHealthBar(health);
         rightGear_->addChild(health, -2);
@@ -67,8 +67,8 @@ RightGear* HudFactory::getRightGear(MainActor* actor)
         // Load energy
         filename = std::string{ "hud/right-gear-energy.png" };
         Sprite* energy{ Sprite::create(filename) };
-        energy->setPosition(Vec2{ size.width / 2.0f, size.height });
-        energy->setAnchorPoint(Vec2{ 0.0f, 1.0f });
+        energy->setPosition(Vec2{ size.width, size.height });
+        energy->setAnchorPoint(Vec2{ 1.0f, 1.0f });
         rightGear_->addChild(energy, -1);
     }
     return rightGear_;

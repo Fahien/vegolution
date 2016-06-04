@@ -40,7 +40,6 @@ Enemy::Enemy(int healthMax, int velocity, int delay, int offsetY, Bullet* bullet
 
 Enemy::~Enemy()
 {
-	log("Releasing enemy bullet");
 	bullet_->release();
 }
 
@@ -69,11 +68,8 @@ Enemy* Enemy::create(std::string name, int healthMax, int velocity, int delay, B
         enemy->physicsBody_->setCategoryBitmask(4);
 		// Collide with main actor, terrain and player bullet
         enemy->physicsBody_->setCollisionBitmask(11);
-        return enemy;
-    }
-	// Error
-	CC_SAFE_DELETE(enemy);
-    return nullptr;
+    } else { CC_SAFE_DELETE(enemy); }
+	return enemy;
 }
 
 void Enemy::spawn(Vec2 position)

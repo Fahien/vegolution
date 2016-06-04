@@ -35,6 +35,7 @@ public:
 	/// @return  The FileUtils instance pointer
     inline cocos2d::FileUtils* getFileUtils() const { return fileUtils_; }
 
+	void initDataManager();
 	/// @return	The DataManager instance pointer
 	DataManager* getDataManager() { return &dataManager_; }
 
