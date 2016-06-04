@@ -1,4 +1,5 @@
 #include "GameLayer.h"
+#include "scene/MainScene.h"
 
 USING_NS_CC;
 
@@ -168,7 +169,7 @@ void GameLayer::listenEnemyBullet() {
                         _eventDispatcher->removeAllEventListeners(); // Remove game controller
                         DelayTime* delay {DelayTime::create(2.0f)}; // Wait a delay
                         CallFunc* func {CallFunc::create([this]() {
-                            Scene* main {MainLayer::createScene(game_)};
+                            Scene* main {MainScene::create(game_)};
                             _director->replaceScene(TransitionFade::create(0.5f, main, Color3B::BLACK));
                         })}; // Return to main
                         Sequence* sequence {Sequence::createWithTwoActions(delay, func)};

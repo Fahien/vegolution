@@ -13,19 +13,19 @@ public:
 
     cocos2d::Sprite *createBackground();
 
+    cocos2d::ui::Layout *createMenu();
+
+    cocos2d::Sprite *createBoard();
+
+protected:
     cocos2d::ui::Text *createPlayText();
 
     cocos2d::ui::Text *createSettingsText();
 
     cocos2d::ui::Text *createQuitText();
 
-    cocos2d::ui::Layout *createMenu();
-
-    cocos2d::Sprite *createBoard();
-
 private:
     Vegolution *game_;
-    cocos2d::Director *director_;
     DataManager *data_;
 
     cocos2d::Size visibleSize_;

@@ -1,17 +1,19 @@
 #include "MainFactory.h"
 #include "game/GameLayer.h"
-#include "settings/SettingsLayer.h"
+#include "scene/SettingsScene.h"
 
 USING_NS_CC;
 
 MainFactory::MainFactory(Vegolution *game)
-        : game_{game}, director_{game->getDirector()}, data_{game->getDataManager()} {
+        : game_{game}
+        , data_{game->getDataManager()}
+        , visibleSize_{Director::getInstance()->getVisibleSize()}
+{
     log("Creating MainFactory");
 
     // Set center
     log("Setting center");
-    visibleSize_ = director_->getVisibleSize();
-    Vec2 origin{director_->getVisibleOrigin()};
+    Vec2 origin{Director::getInstance()->getVisibleOrigin()};
     center_.x = visibleSize_.width / 2 + origin.x;
     center_.y = visibleSize_.height / 2 + origin.y;
 
@@ -60,7 +62,6 @@ ui::Text *MainFactory::createPlayText() {
         play_->setPositionX(-textContentSize_.width / 2);
         play_->setLayoutParameter(layout_);
         play_->enableShadow(Color4B::BLACK, shadowOffset_, shadowBlur_);
-        play_->setTouchEnabled(true);
         play_->addTouchEventListener([this](Ref *sender, ui::Widget::TouchEventType type) {
             ui::Text *target{static_cast<ui::Text *>(sender)};
             Scene *scene{nullptr};
@@ -84,6 +85,7 @@ ui::Text *MainFactory::createPlayText() {
             }
         });
     }
+    play_->setTouchEnabled(true);
     return play_;
 }
 
@@ -97,18 +99,20 @@ ui::Text *MainFactory::createSettingsText() {
         settings_->setPositionX(-textContentSize_.width / 2);
         settings_->setLayoutParameter(layout_);
         settings_->enableShadow(Color4B::BLACK, shadowOffset_, shadowBlur_);
-        settings_->setTouchEnabled(true);
         settings_->addTouchEventListener([&](Ref *sender, ui::Widget::TouchEventType type) {
             ui::Text *target{static_cast<ui::Text *>(sender)};
-            Scene *scene{nullptr};
+            SettingsScene *scene{nullptr};
+            TransitionFade* transition{nullptr};
             switch (type) {
                 case ui::Widget::TouchEventType::BEGAN :
                     target->runAction(ScaleTo::create(0.125f, 1.25f));
                     break;
                 case ui::Widget::TouchEventType::ENDED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
-                    scene = SettingsLayer::createScene();
-                    director_->pushScene(scene);
+                    scene = SettingsScene::create(game_);
+                    transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
+                    Director::getInstance()->pushScene(transition);
+                    target->setTouchEnabled(false);
                     break;
                 case ui::Widget::TouchEventType::CANCELED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
@@ -118,6 +122,7 @@ ui::Text *MainFactory::createSettingsText() {
             }
         });
     }
+    settings_->setTouchEnabled(true);
     return settings_;
 }
 
@@ -130,7 +135,6 @@ ui::Text *MainFactory::createQuitText() {
         quit_->setPositionX(-textContentSize_.width / 2);
         quit_->enableShadow(Color4B::BLACK, shadowOffset_, shadowBlur_);
         quit_->setLayoutParameter(layout_);
-        quit_->setTouchEnabled(true);
         quit_->addTouchEventListener([&](Ref *sender, ui::Widget::TouchEventType type) {
             ui::Text *target{static_cast<ui::Text *>(sender)};
             switch (type) {
@@ -139,10 +143,11 @@ ui::Text *MainFactory::createQuitText() {
                     break;
                 case ui::Widget::TouchEventType::ENDED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
-                    director_->end();
+                    Director::getInstance()->end();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
                     exit(0);
 #endif
+                    target->setTouchEnabled(false);
                     break;
                 case ui::Widget::TouchEventType::CANCELED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
@@ -152,6 +157,7 @@ ui::Text *MainFactory::createQuitText() {
             }
         });
     }
+    quit_->setTouchEnabled(true);
     return quit_;
 }
 
@@ -164,6 +170,14 @@ ui::Layout *MainFactory::createMenu() {
         menu_->setPositionY(center_.y - menuSize_.height / 2);
         menu_->setLayoutType(ui::Layout::Type::VERTICAL);
     }
+    // Get the play text
+    menu_->addChild(createPlayText());
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+    // Get the settings text
+    menu_->addChild(createSettingsText());
+#endif
+    // Get the quit text
+    menu_->addChild(createQuitText());
     return menu_;
 }
 

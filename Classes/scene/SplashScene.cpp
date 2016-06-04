@@ -1,4 +1,5 @@
 #include "SplashScene.h"
+#include "MainScene.h"
 
 USING_NS_CC;
 
@@ -16,7 +17,7 @@ bool SplashScene::init(Vegolution *game) {
     // Create a layer
     Layer *layer{Layer::create()};
 
-    Size size{game->getDirector()->getVisibleSize()};
+    Size size{Director::getInstance()->getVisibleSize()};
     Vec2 center{size.width / 2.0f, size.height / 2.0f};
 
     // Load the glow
@@ -40,14 +41,17 @@ bool SplashScene::init(Vegolution *game) {
     addChild(layer);
 
     // Scene logic
-    CallFunc *initData{CallFunc::create([game]() { game->initDataManager(); })};
+    CallFunc *initDataAndAudio{CallFunc::create([game]() {
+        game->initDataManager();
+        game->initAudioFactory();
+    })};
     DelayTime *delay{DelayTime::create(2.0f)};
     CallFunc *changeScene{CallFunc::create([game]() {
-        Scene *main{MainLayer::createScene(game)};
+        Scene *main{MainScene::create(game)};
         TransitionFade *transition{TransitionFade::create(0.5f, main, Color3B::BLACK)};
-        game->getDirector()->replaceScene(transition);
+        Director::getInstance()->replaceScene(transition);
     })};
-    Sequence *sceneSequence{Sequence::create(initData, delay, changeScene, nullptr)};
+    Sequence *sceneSequence{Sequence::create(initDataAndAudio, delay, changeScene, nullptr)};
     runAction(sceneSequence);
 
     return true;

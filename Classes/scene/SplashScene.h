@@ -3,7 +3,6 @@
 
 #include "cocos2d.h"
 #include "Vegolution.h"
-#include "main/MainLayer.h"
 
 class SplashScene : public cocos2d::Scene {
 public:
