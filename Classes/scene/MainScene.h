@@ -2,15 +2,16 @@
 #define __MAIN_SCENE_H__
 
 #include "cocos2d.h"
-#include "Vegolution.h"
+#include "data/DataManager.h"
 
 class MainScene : public cocos2d::Scene {
 public:
-    bool init(Vegolution* game);
+    MainScene();
+    ~MainScene();
 
-    static MainScene* create(Vegolution* game);
+    bool init(DataManager* data);
 
-
+    static MainScene* create(DataManager* data);
 };
 
 #endif // __MAIN_SCENE_H__

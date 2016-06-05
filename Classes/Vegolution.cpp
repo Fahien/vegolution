@@ -4,7 +4,6 @@
 USING_NS_CC;
 
 static Size designSize{570, 320};
-static Size windowSize{1024, 544};
 
 // Information about resources
 typedef struct tagResource {
@@ -25,13 +24,13 @@ static Resource smallResource{Size{480, 320}, Size{0, 0}, "sd"};
 static std::array<Resource, 3> resources{{largeResource, mediumResource, smallResource}};
 
 Vegolution::Vegolution()
-        : director_{nullptr}, fileUtils_{nullptr}, audioEngine_{nullptr}, dataManager_{}, audio_{} {
+        : dataManager_{}, audio_{} {
     log("Creating Vegolution");
 }
 
 Vegolution::~Vegolution() {
     log("Destructing Vegolution");
-    audio_.unload();
+    //audio_.unload();
 }
 
 // If you want a different context, just modify the value of glContextAttrs
@@ -43,14 +42,11 @@ void Vegolution::initGLContextAttrs() {
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
-void Vegolution::initDataManager() {
-    // Initialize the DataManager
-    dataManager_.init(fileUtils_);
-}
-
 void Vegolution::initAudioFactory() {
+    // Get the audio engine
+    CocosDenshion::SimpleAudioEngine* audioEngine {CocosDenshion::SimpleAudioEngine::getInstance()};
     // Initialize the AudioFactory
-    audio_.load(audioEngine_);
+    audio_.load(audioEngine);
 }
 
 // If you want to use packages manager to install more packages, 
@@ -62,37 +58,43 @@ static int register_all_packages() {
 // Hook method for application did finish launching
 bool Vegolution::applicationDidFinishLaunching() {
     // Get Director instance
-    director_ = Director::getInstance();
+    Director* director{ Director::getInstance() };
     // Get FileUtils instance
-    fileUtils_ = FileUtils::getInstance();
-    // Get the SimpleAudioEngine instance
-    audioEngine_ = CocosDenshion::SimpleAudioEngine::getInstance();
+    FileUtils* fileUtils{ FileUtils::getInstance() };
 
+    // Initialize the DataManager
+    log("Initializing data");
+    float width{ static_cast<float>(dataManager_.getInteger("window.width")) };
+    float height{ static_cast<float>(dataManager_.getInteger("window.height")) };
+    Size windowSize{ width, height };
+
+    log("Initializing View");
     // Initialize director
-    GLView *glView{director_->getOpenGLView()};
+    GLView *glView{director->getOpenGLView()};
     if (!glView) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
         glView = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
 #else
         glView = GLViewImpl::create("Vegolution");
 #endif
-        director_->setOpenGLView(glView);
+        director->setOpenGLView(glView);
     }
 
+    log("Set interval 1/60");
     // Set FPS. the default value is 1.0/60 if you don't call this
-    director_->setAnimationInterval(1.0f / 60.0f);
+    director->setAnimationInterval(1.0f / 60.0f);
 
     // Set the design resolution
     glView->setDesignResolutionSize(designSize.width, designSize.height, ResolutionPolicy::FIXED_HEIGHT);
 
     // Get the frame size
-    Size frameSize{glView->getFrameSize()};
+    Size frameSize{ glView->getFrameSize() };
     log("Frame size is %.0fx%.0f", frameSize.width, frameSize.height);
 
     // Vector to build a list of resources paths
     std::vector<std::string> searchPaths;
 
-    float scaleFactor{-1.0f};
+    float scaleFactor{ -1.0f };
     // Look through our resource definitions
     for (auto resource : resources) {
         // If the screen is wider or higher than the resolution of the resource
@@ -109,32 +111,31 @@ bool Vegolution::applicationDidFinishLaunching() {
     }
 
     // Set scale factor and search paths
-    director_->setContentScaleFactor(scaleFactor);
-    fileUtils_->setSearchPaths(searchPaths);
+    director->setContentScaleFactor(scaleFactor);
+    fileUtils->setSearchPaths(searchPaths);
 
     register_all_packages();
 
     // Create the main scene. it's an autorelease object
-    Scene *scene{SplashScene::create(this)};
+    Scene* scene{ SplashScene::create(&dataManager_) };
 
     // Run now!
-    director_->runWithScene(scene);
+    director->runWithScene(scene);
     return true;
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
 void Vegolution::applicationDidEnterBackground() {
-    director_->stopAnimation();
+    Director::getInstance()->stopAnimation();
 
     // if you use SimpleAudioEngine, it must be pause
-    audioEngine_->pauseBackgroundMusic();
+    CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
 }
 
 // This function will be called when the app is active again
 void Vegolution::applicationWillEnterForeground() {
-    ;
-    director_->startAnimation();
+    Director::getInstance()->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here
-    audioEngine_->resumeBackgroundMusic();
+    CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }

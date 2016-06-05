@@ -2,19 +2,22 @@
 
 USING_NS_CC;
 
-GameFactory::GameFactory(Vegolution* game)
-	: game_{ game }
-	, data_{ game->getDataManager() }
-	, bullets_{ data_->getBullets() }
-	, vehicles_{ data_->getVehicles() }
+GameFactory::GameFactory(DataManager* data)
+        : visibleSize_{ Director::getInstance()->getVisibleSize() }
+        , origin_{ Director::getInstance()->getVisibleOrigin() }
+        , center_{ visibleSize_.width / 2.0f + origin_.x, visibleSize_.height / 2.0f + origin_.y }
+        , offsetX_{ visibleSize_.width / 4.0f }
+        , bullets_{}
+        , vehicles_{}
+        , actor_{ nullptr }
+        , terrain_{ nullptr }
+        , parallax_{ nullptr }
+        , board_{ nullptr }
+        , explosion_{ nullptr }
 {
     log("Creating GameFactory");
-	Director* director{ game_->getDirector() };
-	visibleSize_ = director->getVisibleSize();
-    origin_ = director->getVisibleOrigin();
-    center_.x = visibleSize_.width / 2;
-    center_.y = visibleSize_.height / 2;
-    offsetX_ = visibleSize_.width / 4;
+    data->loadBullets(bullets_);
+    data->loadVehicles(vehicles_, bullets_);
 }
 
 GameFactory::~GameFactory()
@@ -22,6 +25,10 @@ GameFactory::~GameFactory()
     log("Destructing GameFactory");
 	log("Releasing explosion");
 	if (explosion_) { explosion_->release(); }
+    log("Releasing bullets");
+    for (Bullet* bullet: bullets_) bullet->release();
+    log("Releasing vehicles");
+    for (Vehicle* vehicle : vehicles_) vehicle->release();
 }
 
 MainActor* GameFactory::createActor()
@@ -106,7 +113,7 @@ void GameFactory::createExplosion(Sprite* node)
 		Animation* animation{ Animation::create() };
 		for (int i{ 0 }; i < 8; i++) {
 			std::string filename = StringUtils::format("misc/explosion/explosion%d.png", i);
-			if (!game_->getFileUtils()->isFileExist(filename)) break;
+			if (!FileUtils::getInstance()->isFileExist(filename)) break;
 			animation->addSpriteFrameWithFile(filename);
 		}
 		animation->setDelayPerUnit(0.0625f);

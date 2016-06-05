@@ -1,34 +1,48 @@
 #include "MainScene.h"
+#include "SimpleAudioEngine.h"
 #include "factory/MainFactory.h"
 
 USING_NS_CC;
 
-MainScene* MainScene::create(Vegolution *game) {
-    MainScene *scene{new(std::nothrow) MainScene{}}; // Construct
-    if (scene && scene->init(game)) { scene->autorelease(); } // Initialize
+MainScene::MainScene() {
+    log("Constructing MainScene");
+}
+
+MainScene::~MainScene() {
+    log("Destructing MainScene");
+}
+
+MainScene* MainScene::create(DataManager* data) {
+    MainScene* scene{ new(std::nothrow) MainScene{} }; // Construct
+    if (scene && scene->init(data)) { scene->autorelease(); } // Initialize
     else { CC_SAFE_DELETE(scene); }
     return scene;
 }
 
-bool MainScene::init(Vegolution *game) {
+bool MainScene::init(DataManager* data) {
     // Super init first
     if (!Scene::init()) return false;
     log("Initializing MainScene");
 
-    // Play the background music
-    game->getAudio().playMusic(soundtrack);
+    CocosDenshion::SimpleAudioEngine* audio {CocosDenshion::SimpleAudioEngine::getInstance()};
+    audio->preloadBackgroundMusic("audio/soundtrack.mp3");
+    audio->playBackgroundMusic("audio/soundtrack.mp3", true);
+
+    // Create a Layer
+    Layer* layer { Layer::create() };
 
     // Create the MainFactory
-    MainFactory factory {game};
+    MainFactory factory{ data };
 
     // Get the background
-    this->addChild(factory.createBackground());
+    layer->addChild(factory.getBackground());
 
     // Get the menu
-    this->addChild(factory.createMenu());
+    layer->addChild(factory.getMenu());
 
     // Get the board
-    this->addChild(factory.createBoard());
+    layer->addChild(factory.getBoard());
 
+    addChild(layer);
     return true;
 }

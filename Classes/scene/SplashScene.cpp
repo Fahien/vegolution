@@ -3,14 +3,14 @@
 
 USING_NS_CC;
 
-SplashScene *SplashScene::create(Vegolution *game) {
+SplashScene *SplashScene::create(DataManager* data) {
     SplashScene *screen{new(std::nothrow) SplashScene{}}; // Construct
-    if (screen && screen->init(game)) { screen->autorelease(); } // Initialize
+    if (screen && screen->init(data)) { screen->autorelease(); } // Initialize
     else { CC_SAFE_DELETE(screen); }
     return screen;
 }
 
-bool SplashScene::init(Vegolution *game) {
+bool SplashScene::init(DataManager* data) {
     // Super init first
     if (!Scene::init()) return false;
 
@@ -41,17 +41,16 @@ bool SplashScene::init(Vegolution *game) {
     addChild(layer);
 
     // Scene logic
-    CallFunc *initDataAndAudio{CallFunc::create([game]() {
-        game->initDataManager();
-        game->initAudioFactory();
-    })};
+    //CallFunc *initAudio{CallFunc::create([game]() {
+    //    game->initAudioFactory();
+    //})};
     DelayTime *delay{DelayTime::create(2.0f)};
-    CallFunc *changeScene{CallFunc::create([game]() {
-        Scene *main{MainScene::create(game)};
+    CallFunc *changeScene{CallFunc::create([data]() {
+        Scene *main{MainScene::create(data)};
         TransitionFade *transition{TransitionFade::create(0.5f, main, Color3B::BLACK)};
         Director::getInstance()->replaceScene(transition);
     })};
-    Sequence *sceneSequence{Sequence::create(initDataAndAudio, delay, changeScene, nullptr)};
+    Sequence *sceneSequence{Sequence::create(delay, changeScene, nullptr)};
     runAction(sceneSequence);
 
     return true;

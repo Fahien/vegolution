@@ -14,31 +14,27 @@ public:
     DataManager();
     ~DataManager();
 
-	/// Initialize with FileUtils instance
-    void init(cocos2d::FileUtils* fileUtils_);
+    /// Load all bullets
+    void loadBullets(std::vector<Bullet*>& bullets);
 
-    /// Open data connection
-    int open();
-    /// Close data connection
-    void close();
-    /// Release bullets, vehicles and enemies
-	void release();
+    /// Load all vehicles
+	void loadVehicles(std::vector<Vehicle*>& vehicles, std::vector<Bullet*>& bullets);
 
-	std::vector<Bullet*>& getBullets();
-	std::vector<Vehicle*>& getVehicles();
-    std::vector<Enemy*>& getEnemies();
-
-	Bullet* getBullet(std::string& name);
+    /// Load all enemies
+    void loadEnemies(std::vector<Enemy*>& enemies, std::vector<Bullet*>& bullets);
 
     std::string getString(std::string key);
+    int getInteger(std::string key);
+    void saveInteger(std::string key, int value);
 
-private:
-    cocos2d::FileUtils* fileUtils_;
-    sqlite3* db_;
+protected:
+    /// Open data connection
+    int open(sqlite3** db);
+    /// Close data connection
+    void close(sqlite3* db);
 
-	std::vector<Bullet*> bullets_;
-	std::vector<Vehicle*> vehicles_;
-	std::vector<Enemy*> enemies_;
+	/// Get a bullet
+	Bullet* getBullet(std::string& name, std::vector<Bullet*>& bullets);
 };
 
 #endif // __DATA_MANAGER_H__

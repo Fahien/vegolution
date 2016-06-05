@@ -3,72 +3,69 @@
 USING_NS_CC;
 
 DataManager::DataManager()
-	: fileUtils_{ nullptr }
-	, db_{ nullptr }
-{}
-
+{
+    log("Costructing Data");
+}
 
 DataManager::~DataManager() {
-	release(); // Release resources
-	close(); // Close the connection
+    log("Destructing Data");
 }
 
-void DataManager::init(FileUtils* fileUtils)
-{
-    fileUtils_ = fileUtils;
-    // Open a connection
-	int open_result{ this->open() };
-    // Check open error
-    if (open_result != SQLITE_OK) { log("Could not open database file %d: %s", open_result, sqlite3_errmsg(db_)); }
-}
-
-int DataManager::open()
-{
-	log("Opening Data");
+// TODO Improve Android handling, init database, then open connection with an already initialized db
+int DataManager::open(sqlite3** db) {
+    log("Get fileUtils");
+    FileUtils* fileUtils{ FileUtils::getInstance() };
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-	// In Android get a writable path
-	std::string path{ fileUtils_->getWritablePath() + "data.db" };
-	// Get data from the internal database
-	log("Creating data");
-	Data data{ fileUtils_->getDataFromFile("data.db") };
-	// Write data to an external database
-	fileUtils_->writeDataToFile(data, path);
-	// return sqlite3_open_v2(path.c_str(), &db_, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) == SQLITE_OK;
-	return sqlite3_open(path.c_str(), &db_);
+    // In Android get a writable path
+    std::string path{ fileUtils->getWritablePath() + "data.db" };
+    // Get data from the internal database
+    log("Creating data");
+    Data data{ fileUtils->getDataFromFile("data.db") };
+    // Write data to an external database
+    fileUtils->writeDataToFile(data, path);
+	// return sqlite3_open_v2(path.c_str(), db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) == SQLITE_OK;
+	return sqlite3_open(path.c_str(), db);
 #else
-	std::string path{ fileUtils_->fullPathForFilename("data.db") };
-	return sqlite3_open(path.c_str(), &db_);
+    log("Getting path");
+	std::string path{ fileUtils->fullPathForFilename("data.db") };
+    log("Searching database at %s", path.c_str());
+    if (!fileUtils->isFileExist(path)) {
+        log("Database does not exists at %s", path.c_str());
+        Director::getInstance()->end();
+    }
+    // Open a connection
+    log("Opening data");
+    int open_result{ sqlite3_open(path.c_str(), db) };
+    // Check open error
+    if (open_result != SQLITE_OK) {
+        log("Could not open database file %d: %s", open_result, sqlite3_errmsg(*db));
+    } else {
+        log("Opening ok");
+    }
+    return open_result;
 #endif
 }
 
-void DataManager::release()
-{
-	log("Releasing enemies");
-	for (Enemy* enemy : enemies_) { enemy->release(); }
-	log("Releasing vehicles");
-	for (Vehicle* vehicle : vehicles_) { vehicle->release(); }
-	log("Releasing bullets");
-	for (Bullet* bullet : bullets_) { bullet->release(); }
-}
-
-void DataManager::close()
+void DataManager::close(sqlite3* db)
 {
     log("Closing Data");
-    sqlite3_close(db_);
+    sqlite3_close(db);
 }
 
-std::vector<Bullet*>& DataManager::getBullets()
+void DataManager::loadBullets(std::vector<Bullet*>& bullets)
 {
-	// Check if already loaded
-	if (!bullets_.empty()) return bullets_;
+    log("Loading bullets");
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
 
 	// Initialize variables
 	sqlite3_stmt* statement{ nullptr };
 	std::string sql{ selectAllFromBullet };
 
 	// Prepare the statement
-	if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
-		log("Could not prepare SELECT: %s", sqlite3_errmsg(db_));
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
+		log("Could not prepare SELECT: %s", sqlite3_errmsg(db));
 	}
 	else {
 		// Step
@@ -83,7 +80,7 @@ std::vector<Bullet*>& DataManager::getBullets()
 			log("Found Bullet[%s][%d][%f]", nam, damage, velocity);
 			// Create the bullet
 			Bullet* bullet = Bullet::create(name, damage, velocity);
-			bullets_.push_back(bullet);
+			bullets.push_back(bullet);
 		}
 	}
 
@@ -91,22 +88,24 @@ std::vector<Bullet*>& DataManager::getBullets()
 	sqlite3_reset(statement);
 	// Destroy the statement
 	sqlite3_finalize(statement);
-	// Return the bullets
-	return bullets_;
+    // Close connection
+    close(db);
 }
 
-std::vector<Vehicle*>& DataManager::getVehicles()
+void DataManager::loadVehicles(std::vector<Vehicle*>& vehicles, std::vector<Bullet*>& bullets)
 {
-	// Check if already loaded
-	if (!vehicles_.empty()) return vehicles_;
+    log("Loading vehicles");
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
 
 	// Initialize variables
 	sqlite3_stmt* statement{ nullptr };
 	std::string sql{ "SELECT * FROM vehicle" };
 
 	// Prepare the statement
-	if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
-		log("Could not prepare SELECT: %s", sqlite3_errmsg(db_));
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
+		log("Could not prepare SELECT: %s", sqlite3_errmsg(db));
 	}
 	else {
 		// Step
@@ -124,7 +123,7 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			const unsigned char* bname = sqlite3_column_text(statement, 4);
 			std::string bulletName = std::string((char*)bname);
 			log("Found Vehicle[%s][%d][%d][%s]", nam, health, velocity, bname);
-			Bullet* bullet = getBullet(bulletName);
+			Bullet* bullet = getBullet(bulletName, bullets);
 			// Get offset
 			int offsetX = sqlite3_column_int(statement, 5);
 			int offsetY = sqlite3_column_int(statement, 6);
@@ -139,7 +138,7 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			Animation* animation{ Animation::create() };
 			for (int i{ 0 }; i < 32; i++) {
 				std::string filename = StringUtils::format("vehicle/%s/%s%d.png", nam, nam, i);
-				if (!fileUtils_->isFileExist(filename)) break;
+				if (!FileUtils::getInstance()->isFileExist(filename)) break;
 				animation->addSpriteFrameWithFile(filename);
 			}
 			animation->setDelayPerUnit(0.0625f);
@@ -148,7 +147,7 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 			vehicle->runAction(RepeatForever::create(animate));
 
 			// Save vehicle
-			vehicles_.push_back(vehicle);
+			vehicles.push_back(vehicle);
 		}
 	}
 
@@ -156,22 +155,23 @@ std::vector<Vehicle*>& DataManager::getVehicles()
 	sqlite3_reset(statement);
 	// Destroy the statement
 	sqlite3_finalize(statement);
-	// Return the vehicles
-	return vehicles_;
+    // Close db
+    close(db);
 }
 
-std::vector<Enemy*>& DataManager::getEnemies()
+void DataManager::loadEnemies(std::vector<Enemy*>& enemies, std::vector<Bullet*>& bullets)
 {
-	// Check if already loaded
-	if (!enemies_.empty()) return enemies_;
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
 
     // Initialize variables
 	sqlite3_stmt* statement{ nullptr };
 	std::string sql{ "SELECT * FROM enemy" };
 
     // Prepare the statement
-    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
-        log("Could not prepare SELECT: %s", sqlite3_errmsg(db_));
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
+        log("Could not prepare SELECT: %s", sqlite3_errmsg(db));
     }
     else {
         // Step
@@ -190,7 +190,7 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			std::string bulletName = std::string((char*)bname);
 			log("Found Enemy[%s][%d][%d][%d][%s]", nam, health, velocity, delay, bname);
 			// Get the bullet
-			Bullet* b = getBullet(bulletName);
+			Bullet* b = getBullet(bulletName, bullets);
 			Bullet* bullet{ nullptr };
 			// Clone bullet
 			if (b) bullet = Bullet::create(b->getName(), b->getDamage(), b->getVelocity());
@@ -202,12 +202,13 @@ std::vector<Enemy*>& DataManager::getEnemies()
 			Enemy* enemy = Enemy::create(enemyName, health, velocity, delay, bullet, gravity, y);
 
 			// Create animation
+            FileUtils* fileUtils = FileUtils::getInstance();
 			std::string filename = StringUtils::format("enemy/%s/%s1.png", nam, nam);
-			if (fileUtils_->isFileExist(filename)) {
+			if (fileUtils->isFileExist(filename)) {
 				Animation* animation{ Animation::create() };
 				for (int i{ 0 }; i < 32; i++) {
 					filename = StringUtils::format("enemy/%s/%s%d.png", nam, nam, i);
-					if (!fileUtils_->isFileExist(filename)) break;
+					if (!fileUtils->isFileExist(filename)) break;
 					animation->addSpriteFrameWithFile(filename);
 				}
 				animation->setDelayPerUnit(0.0625f);
@@ -216,7 +217,7 @@ std::vector<Enemy*>& DataManager::getEnemies()
 				enemy->runAction(RepeatForever::create(animate));
 			}
 
-            enemies_.push_back(enemy);
+            enemies.push_back(enemy);
         }
     }
 
@@ -224,14 +225,14 @@ std::vector<Enemy*>& DataManager::getEnemies()
     sqlite3_reset(statement);
     // Destroy the statement
     sqlite3_finalize(statement);
-    // Return the enemies
-    return enemies_;
+    // Close connection
+    close(db);
 }
 
 
-Bullet* DataManager::getBullet(std::string& name)
+Bullet* DataManager::getBullet(std::string& name, std::vector<Bullet*>& bullets)
 {
-	for (Bullet* bullet : getBullets()) {
+	for (Bullet* bullet : bullets) {
 		if (bullet->getName() == name) return bullet;
 	}
 	log("Bullet %s not found!", name.c_str());
@@ -239,21 +240,27 @@ Bullet* DataManager::getBullet(std::string& name)
 }
 
 std::string DataManager::getString(std::string key) {
+    log("Searching key %s", key.c_str());
     // Initialize variables
-	std::string value{ "Unknown" };
+    std::string value{ "Unknown" };
+
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
+
 	sqlite3_stmt* statement{ nullptr };
 	std::string sql{ "SELECT VALUE FROM string_en WHERE key=?" };
 
     // Prepare the statement
-    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
-        log("Could not prepare SELECT: %s", sqlite3_errmsg(db_));
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, NULL) != SQLITE_OK) {
+        log("Could not prepare SELECT: %s", sqlite3_errmsg(db));
     }
     else {
         // Bind key parameter
         sqlite3_bind_text(statement, 1, key.c_str(), -1, SQLITE_TRANSIENT);
         // Step
         if (sqlite3_step(statement) != SQLITE_ROW) {
-            log("Could not step SELECT: %s", sqlite3_errmsg(db_));
+            log("Could not step SELECT: %s", sqlite3_errmsg(db));
         }
         else {
             const unsigned char* val {sqlite3_column_text(statement, 0)};
@@ -266,6 +273,82 @@ std::string DataManager::getString(std::string key) {
     sqlite3_reset(statement);
     // Destroy the statement
     sqlite3_finalize(statement);
+    // Close connection
+    close(db);
     // Return the value
     return value;
+}
+
+
+int DataManager::getInteger(std::string key) {
+    log("Searching key %s", key.c_str());
+    // Initialize variables
+    int value{ 0 };
+
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
+
+    sqlite3_stmt* statement{ nullptr };
+    std::string sql{ "SELECT value FROM integer WHERE key=?" };
+
+    // Prepare the statement
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK) {
+        log("Could not prepare SELECT: %s", sqlite3_errmsg(db));
+    }
+    else {
+        // Bind key parameter
+        sqlite3_bind_text(statement, 1, key.c_str(), -1, SQLITE_TRANSIENT);
+        // Step
+        if (sqlite3_step(statement) != SQLITE_ROW) {
+            log("Could not step SELECT: %s", sqlite3_errmsg(db));
+        }
+        else {
+            value = sqlite3_column_int(statement, 0);
+            log("Found Key[%s] Value[%d]", key.c_str(), value);
+        }
+    }
+
+    // Reset the statement
+    sqlite3_reset(statement);
+    // Destroy the statement
+    sqlite3_finalize(statement);
+    // Close connection
+    close(db);
+    // Return the value
+    return value;
+}
+
+void DataManager::saveInteger(std::string key, int value)
+{
+    // Open connection
+    sqlite3* db{ nullptr };
+    open(&db);
+
+    sqlite3_stmt* statement{ nullptr };
+    std::string sql{ "UPDATE integer SET value=? WHERE key=?" };
+
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK) {
+        log("Could not prepare INSERT: %s", sqlite3_errmsg(db));
+    }
+    else {
+        // Bind value parameter
+        sqlite3_bind_int(statement, 1, value);
+        // Bind key parameter
+        sqlite3_bind_text(statement, 2, key.c_str(), -1, SQLITE_TRANSIENT);
+        // Step!
+        if (sqlite3_step(statement) != SQLITE_DONE) {
+            log("Could not step INSERT: %s", sqlite3_errmsg(db));
+        }
+        else {
+            log("Saved Key[%s] Value[%d]", key.c_str(), value);
+        }
+    }
+
+    // Reset the statement
+    sqlite3_reset(statement);
+    // Destroy the statement
+    sqlite3_finalize(statement);
+    // Close connection
+    close(db);
 }

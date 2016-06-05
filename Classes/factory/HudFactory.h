@@ -10,7 +10,7 @@ public:
     ~HudFactory();
 
     LeftGear* getLeftGear(MainActor* actor);
-    RightGear* getRightGear(MainActor* actor);
+    RightGear* getRightGear(MainActor *actor);
 
 private:
     const cocos2d::Size visibleSize_;

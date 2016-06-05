@@ -6,7 +6,9 @@ HudFactory::HudFactory(const Size visibleSize)
         : visibleSize_{ visibleSize }
         , rightGear_{ nullptr }
         , leftGear_{ nullptr }
-{}
+{
+    log("Creating HudFactory");
+}
 
 HudFactory::~HudFactory(){}
 
@@ -32,7 +34,7 @@ LeftGear* HudFactory::getLeftGear(MainActor* actor)
     return leftGear_;
 }
 
-RightGear* HudFactory::getRightGear(MainActor* actor)
+RightGear* HudFactory::getRightGear(MainActor *actor)
 {
     if (rightGear_ == nullptr) {
         log("Creating right gear");
@@ -47,14 +49,6 @@ RightGear* HudFactory::getRightGear(MainActor* actor)
         rightGear_->setPositionX(visibleSize_.width);
         rightGear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
         rightGear_->setTouchEnabled(true);
-        rightGear_->addTouchEventListener(
-                [](Ref* sender, ui::Widget::TouchEventType type) {
-                    if (type == ui::Widget::TouchEventType::ENDED) {
-                        log("Should open modal");
-                    }
-                    return true;
-                }
-        );
         // Load health
         filename = std::string{ "hud/right-gear-health.png" };
         Sprite* health{ Sprite::create(filename) };

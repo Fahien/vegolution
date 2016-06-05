@@ -3,26 +3,37 @@
 
 USING_NS_CC;
 
-SettingsScene *SettingsScene::create(Vegolution *game) {
-    SettingsScene *scene{new(std::nothrow) SettingsScene{}}; // Construct
-    if (scene && scene->init(game)) { scene->autorelease(); } // Initialize
+SettingsScene::SettingsScene() {
+    log("Constructing SettingsScene");
+}
+
+SettingsScene::~SettingsScene() {
+    log("Destructing SettingsScene");
+}
+
+SettingsScene* SettingsScene::create(DataManager* data) {
+    SettingsScene* scene{ new(std::nothrow) SettingsScene{} }; // Construct
+    if (scene && scene->init(data)) { scene->autorelease(); } // Initialize
     else { CC_SAFE_DELETE(scene); }
     return scene;
 }
 
-bool SettingsScene::init(Vegolution *game) {
+bool SettingsScene::init(DataManager* data) {
     // Super init first
     if (!Scene::init()) return false;
+    log("Initializing SettingsScene");
 
     // Create a layer
-    Layer* layer {Layer::create()};
+    Layer* layer{ Layer::create() };
 
     // Create the factory
-    SettingsFactory factory {game->getDataManager()};
+    SettingsFactory factory{ data };
     // Get the settings background
-    layer->addChild(factory.createBackground());
+    layer->addChild(factory.getBackground());
     // Get the menu from the factory
-    layer->addChild(factory.createMenu());
+    layer->addChild(factory.getMenu());
+    // Get the board
+    layer->addChild(factory.getBoard());
 
     // Add the layer
     addChild(layer);

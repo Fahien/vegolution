@@ -2,13 +2,16 @@
 #define __SETTINGS_SCENE_H__
 
 #include "cocos2d.h"
-#include "Vegolution.h"
+#include "data/DataManager.h"
 
 class SettingsScene : public cocos2d::Scene {
 public:
-    bool init(Vegolution* game);
+    SettingsScene();
+    ~SettingsScene();
 
-    static SettingsScene* create(Vegolution* game);
+    bool init(DataManager* data);
+
+    static SettingsScene* create(DataManager* data);
 };
 
 #endif //__SETTINGS_SCENE_H__

@@ -9,16 +9,25 @@ class SettingsFactory {
 public:
     SettingsFactory(DataManager* data);
 
-    cocos2d::Sprite* createBackground();
+    inline cocos2d::Sprite* const getBackground() { return background_; }
 
-    cocos2d::ui::Layout* createMenu();
+    inline cocos2d::ui::Layout* getMenu() { return menu_; }
+
+    inline cocos2d::Sprite* getBoard() { return board_; }
 
 protected:
-    cocos2d::ui::Text* createBackText();
+    void createBackground();
+
+    void createMenu();
+
+    void createBoard();
+
+    void createResolutionRadio(DataManager* data);
+
+    void createBackText(DataManager* data);
 
 private:
     cocos2d::Size visibleSize_;
-    DataManager* data_;
     std::string fontPath_;
     float fontSize_;
     cocos2d::Size textContentSize_;
@@ -27,8 +36,11 @@ private:
     int shadowBlur_;
 
     cocos2d::Sprite* background_;
+    cocos2d::ui::Text* resolution_;
     cocos2d::ui::Text* back_;
     cocos2d::ui::Layout* menu_;
+    cocos2d::Sprite* board_;
+
 };
 
 #endif // __SETTINGS_FACTORY_H__

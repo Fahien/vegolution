@@ -2,32 +2,34 @@
 #define __MAIN_FACTORY_H__
 
 #include "cocos2d.h"
-#include "Vegolution.h"
+#include "data/DataManager.h"
 #include "ui/CocosGUI.h"
 
 class MainFactory {
 public:
-    MainFactory(Vegolution *game);
+    MainFactory(DataManager* data);
 
     ~MainFactory();
 
-    cocos2d::Sprite *createBackground();
+    inline cocos2d::Sprite* getBackground() const { return background_; }
 
-    cocos2d::ui::Layout *createMenu();
+    inline cocos2d::ui::Layout* getMenu() const { return menu_; }
 
-    cocos2d::Sprite *createBoard();
+    inline cocos2d::Sprite* getBoard() const { return board_; }
 
 protected:
-    cocos2d::ui::Text *createPlayText();
+    void createBackground();
 
-    cocos2d::ui::Text *createSettingsText();
+    void createPlayText(std::string name, DataManager* data);
 
-    cocos2d::ui::Text *createQuitText();
+    void createSettingsText(std::string name, DataManager* data);
 
+    void createQuitText(std::string name);
+
+    void createMenu();
+
+    void createBoard();
 private:
-    Vegolution *game_;
-    DataManager *data_;
-
     cocos2d::Size visibleSize_;
     cocos2d::Vec2 center_;
 

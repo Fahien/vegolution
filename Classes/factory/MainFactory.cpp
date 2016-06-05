@@ -1,47 +1,49 @@
 #include "MainFactory.h"
-#include "game/GameLayer.h"
+#include "scene/GameScene.h"
 #include "scene/SettingsScene.h"
 
 USING_NS_CC;
 
-MainFactory::MainFactory(Vegolution *game)
-        : game_{game}
-        , data_{game->getDataManager()}
-        , visibleSize_{Director::getInstance()->getVisibleSize()}
+MainFactory::MainFactory(DataManager* data)
+        : visibleSize_{ Director::getInstance()->getVisibleSize() }
+        , center_{ visibleSize_.width / 2.0f + Director::getInstance()->getVisibleOrigin().x,
+                   visibleSize_.height / 2.0f + Director::getInstance()->getVisibleOrigin().y }
+        , shadowOffset_{ 0.0f, -4.0f }
+        , shadowBlur_{ 8 }
+        , textContentSize_{ 64.0f, 24.0f }
+        , layout_{ ui::LinearLayoutParameter::create() }
 {
     log("Creating MainFactory");
 
-    // Set center
-    log("Setting center");
-    Vec2 origin{Director::getInstance()->getVisibleOrigin()};
-    center_.x = visibleSize_.width / 2 + origin.x;
-    center_.y = visibleSize_.height / 2 + origin.y;
-
-    // Load and cache the menu sprite fram
+    // Load and cache the menu sprite frame
     // SpriteFrameCache* cacher {SpriteFrameCache::getInstance()};
     // cacher->addSpriteFramesWithFile("menu.plist");
 
     // Set text settings
     log("Setting text");
-    fontPath_ = std::string{"fonts/Marker Felt.ttf"};
-    fontSize_ = 48.0f;
-    shadowOffset_ = Size{0.0f, -4.0f};
-    shadowBlur_ = 8;
-    textContentSize_ = Size{64.0f, 24.0f};
-    layout_ = ui::LinearLayoutParameter::create();
+    fontPath_ = data->getString("font.path");
+    fontSize_ = static_cast<float>(data->getInteger("font.size"));
+
     layout_->setGravity(ui::LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
     layout_->setMargin(ui::Margin{0.0f, 0.0f, 0.0f, 8.0f});
 
     // Set menu settings
     log("Setting menu");
     menuSize_ = Size{64.0f, 64.0f};
+
+    createBackground();
+    createPlayText(data->getString("main.play"), data);
+    createSettingsText(data->getString("main.settings"), data);
+    createQuitText(data->getString("main.quit"));
+    createMenu();
+    createBoard();
 }
 
 MainFactory::~MainFactory() {
     log("Destructing MainFactory");
 }
 
-Sprite *MainFactory::createBackground() {
+void MainFactory::createBackground() {
     if (background_ == nullptr) {
         log("Creating background");
         background_ = Sprite::create("main/background.png");
@@ -49,20 +51,18 @@ Sprite *MainFactory::createBackground() {
         background_->setScaleX(scaleX);
         background_->setPosition(center_);
     }
-    return background_;
 }
 
-ui::Text *MainFactory::createPlayText() {
+void MainFactory::createPlayText(std::string name, DataManager* data) {
     if (play_ == nullptr) {
         log("Creating play");
         // Get localized string
-        std::string playText{data_->getString("main.play")};
-        play_ = ui::Text::create(playText, fontPath_, fontSize_);
+        play_ = ui::Text::create(name, fontPath_, fontSize_);
         play_->setContentSize(textContentSize_);
         play_->setPositionX(-textContentSize_.width / 2);
         play_->setLayoutParameter(layout_);
         play_->enableShadow(Color4B::BLACK, shadowOffset_, shadowBlur_);
-        play_->addTouchEventListener([this](Ref *sender, ui::Widget::TouchEventType type) {
+        play_->addTouchEventListener([data](Ref *sender, ui::Widget::TouchEventType type) {
             ui::Text *target{static_cast<ui::Text *>(sender)};
             Scene *scene{nullptr};
             TransitionFade *transition{nullptr};
@@ -72,9 +72,9 @@ ui::Text *MainFactory::createPlayText() {
                     break;
                 case ui::Widget::TouchEventType::ENDED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
-                    scene = GameLayer::createScene(game_);
+                    scene = GameScene::create(data);
                     transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
-                    game_->getDirector()->replaceScene(transition);
+                    Director::getInstance()->replaceScene(transition);
                     target->setTouchEnabled(false);
                     break;
                 case ui::Widget::TouchEventType::CANCELED :
@@ -86,15 +86,13 @@ ui::Text *MainFactory::createPlayText() {
         });
     }
     play_->setTouchEnabled(true);
-    return play_;
 }
 
-ui::Text *MainFactory::createSettingsText() {
+void MainFactory::createSettingsText(std::string name, DataManager* data) {
     if (settings_ == nullptr) {
         log("Creating settings");
         // Get localized string
-        std::string settingsText{data_->getString("main.settings")};
-        settings_ = ui::Text::create(settingsText, fontPath_, fontSize_);
+        settings_ = ui::Text::create(name, fontPath_, fontSize_);
         settings_->setContentSize(textContentSize_);
         settings_->setPositionX(-textContentSize_.width / 2);
         settings_->setLayoutParameter(layout_);
@@ -109,9 +107,9 @@ ui::Text *MainFactory::createSettingsText() {
                     break;
                 case ui::Widget::TouchEventType::ENDED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
-                    scene = SettingsScene::create(game_);
+                    scene = SettingsScene::create(data);
                     transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
-                    Director::getInstance()->pushScene(transition);
+                    Director::getInstance()->replaceScene(transition);
                     target->setTouchEnabled(false);
                     break;
                 case ui::Widget::TouchEventType::CANCELED :
@@ -123,14 +121,12 @@ ui::Text *MainFactory::createSettingsText() {
         });
     }
     settings_->setTouchEnabled(true);
-    return settings_;
 }
 
-ui::Text *MainFactory::createQuitText() {
+void MainFactory::createQuitText(std::string name) {
     if (quit_ == nullptr) {
         log("Creating quit");
-        std::string quitText{data_->getString("main.quit")};
-        quit_ = ui::Text::create(quitText, fontPath_, fontSize_);
+        quit_ = ui::Text::create(name, fontPath_, fontSize_);
         quit_->setContentSize(textContentSize_);
         quit_->setPositionX(-textContentSize_.width / 2);
         quit_->enableShadow(Color4B::BLACK, shadowOffset_, shadowBlur_);
@@ -158,10 +154,9 @@ ui::Text *MainFactory::createQuitText() {
         });
     }
     quit_->setTouchEnabled(true);
-    return quit_;
 }
 
-ui::Layout *MainFactory::createMenu() {
+void MainFactory::createMenu() {
     if (menu_ == nullptr) {
         log("Creating menu");
         menu_ = ui::Layout::create();
@@ -169,20 +164,18 @@ ui::Layout *MainFactory::createMenu() {
         menu_->setPositionX(center_.x - menuSize_.width / 2);
         menu_->setPositionY(center_.y - menuSize_.height / 2);
         menu_->setLayoutType(ui::Layout::Type::VERTICAL);
-    }
-    // Get the play text
-    menu_->addChild(createPlayText());
+        // Get the play text
+        menu_->addChild(play_);
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-    // Get the settings text
-    menu_->addChild(createSettingsText());
+        // Get the settings text
+        menu_->addChild(settings_);
 #endif
-    // Get the quit text
-    menu_->addChild(createQuitText());
-    return menu_;
+        // Get the quit text
+        menu_->addChild(quit_);
+    }
 }
 
-
-Sprite *MainFactory::createBoard() {
+void MainFactory::createBoard() {
     if (board_ == nullptr) {
         log("Creating board");
         board_ = Sprite::create("misc/board.png");
@@ -191,5 +184,4 @@ Sprite *MainFactory::createBoard() {
         board_->setPosition(center_);
         board_->setGlobalZOrder(4);
     }
-    return board_;
 }

@@ -31,15 +31,6 @@ public:
 	/// @return  The application version
 	virtual std::string getVersion() override { return std::string{"0.1"}; }
 
-	/// @return	The Director instance pointer
-    inline cocos2d::Director*  getDirector() const  { return director_; }
-
-	/// @return  The FileUtils instance pointer
-    inline cocos2d::FileUtils* getFileUtils() const { return fileUtils_; }
-
-    /// @brief Initialize the DataManager
-    void initDataManager();
-
     /// @return	The DataManager instance pointer
     DataManager* getDataManager() { return &dataManager_; }
 
@@ -47,13 +38,10 @@ public:
     void initAudioFactory();
 
     /// @return The AudioFactory
-    inline AudioFactory getAudio() { return audio_; }
+    inline AudioFactory* getAudio() { return &audio_; }
 
 
 private:
-    cocos2d::Director* director_;
-    cocos2d::FileUtils* fileUtils_;
-    CocosDenshion::SimpleAudioEngine* audioEngine_;
     DataManager dataManager_;
     AudioFactory audio_;
 };

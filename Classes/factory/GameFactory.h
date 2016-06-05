@@ -3,7 +3,7 @@
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
-#include "Vegolution.h"
+#include "data/DataManager.h"
 #include "model/Vehicle.h"
 #include "model/MainActor.h"
 #include "model/Terrain2D.h"
@@ -15,7 +15,7 @@
 class GameFactory
 {
 public:
-    GameFactory(Vegolution* game);
+    GameFactory(DataManager* data);
     ~GameFactory();
 
     MainActor* createActor();
@@ -23,26 +23,24 @@ public:
     Parallax* createParallax();
     cocos2d::Sprite* createBoard();
 
+    inline std::vector<Bullet*>& getBullets() { return bullets_; }
+
     void createExplosion(cocos2d::Sprite* node);
 
 private:
-    Vegolution* game_;
-    DataManager* data_;
-
     cocos2d::Size visibleSize_;
-    cocos2d::Vec2 origin_;
+	cocos2d::Vec2 origin_;
     cocos2d::Vec2 center_;
     float offsetX_;
 
-	std::vector<Bullet*> bullets_;
+    std::vector<Bullet*> bullets_;
 	std::vector<Vehicle*> vehicles_;
 
-	MainActor* actor_{ nullptr };
-	Terrain2D* terrain_{ nullptr };
-	Parallax* parallax_{ nullptr };
-	cocos2d::Sprite* board_{ nullptr };
-
-	Explosion* explosion_{ nullptr };
+	MainActor* actor_;
+	Terrain2D* terrain_;
+	Parallax* parallax_;
+	cocos2d::Sprite* board_;
+	Explosion* explosion_;
 };
 
 #endif // __GAME_FACTORY_H__
