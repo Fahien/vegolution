@@ -22,9 +22,10 @@ public:
 
     static GameScene* create(DataManager* data);
 
+	/// Init method
     virtual bool init();
-
-    // Update method
+	virtual void willEnterForeground();
+    /// Update method
     void update(float delta);
 	void scheduleSpawning();
 	void listenPlayerBullet();

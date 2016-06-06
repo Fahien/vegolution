@@ -31,7 +31,7 @@ bool GameScene::init() {
 
     _physicsWorld->setAutoStep(false);
     scheduleUpdateWithPriority(-8);
-    setTag(0);
+    setTag(5);
 
     // Create a layer
     Layer* layer {Layer::create()};
@@ -96,6 +96,11 @@ bool GameScene::init() {
     _eventDispatcher->addEventListenerWithFixedPriority(controller, 1);
 
     return true;
+}
+
+void GameScene::willEnterForeground() {
+    pause_ = false;
+    _director->resume();
 }
 
 // Update method

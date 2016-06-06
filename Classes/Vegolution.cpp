@@ -1,5 +1,6 @@
 #include "Vegolution.h"
 #include "scene/SplashScene.h"
+#include "scene/GameScene.h"
 
 USING_NS_CC;
 
@@ -134,8 +135,14 @@ void Vegolution::applicationDidEnterBackground() {
 
 // This function will be called when the app is active again
 void Vegolution::applicationWillEnterForeground() {
-    Director::getInstance()->startAnimation();
+    Director* director{ Director::getInstance() };
+    director->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here
     CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+
+    Scene* scene{ director->getRunningScene() };
+    if (scene->getTag() == 5) {
+        static_cast<GameScene*>(scene)->willEnterForeground();
+    }
 }
