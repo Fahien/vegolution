@@ -3,7 +3,11 @@
 USING_NS_CC;
 
 MainActor::MainActor()
-        : offsetX_{0.0f}, moving_{false}, vehicle_{nullptr}, rightGear_{nullptr} { setName("Celly"); }
+        : offsetX_{0.0f}
+        , moving_{false}
+        , vehicle_{nullptr}
+        , rightGear_{nullptr}
+{ setName("Celly"); }
 
 MainActor::~MainActor() { }
 
@@ -62,6 +66,7 @@ bool MainActor::switchVehicle() {
     if (vehicle->getParent() != nullptr) { vehicle->removeFromParent(); }
     addChild(vehicle);
     vehicle->resume();
+    vehicle->playEffect();
     // Update listeners
     for (Gear *gear : gears_) { gear->onVehicleChange(vehicle); }
     return true;

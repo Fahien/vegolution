@@ -1,6 +1,6 @@
-#include <scene/MainScene.h>
-#include <audio/include/SimpleAudioEngine.h>
 #include "SettingsFactory.h"
+#include "scene/MainScene.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 

@@ -13,7 +13,7 @@ static const char *const laser = "audio/laser.ogg";
 
 static const char *const spider = "audio/spider.ogg";
 
-static const char *const shot = "audio/shot.ogg";
+static const char *const shot = "audio/water.ogg";
 
 static const char *const tank = "audio/tank.ogg";
 

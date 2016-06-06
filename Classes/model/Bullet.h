@@ -13,6 +13,9 @@ public:
 	inline float getVelocity() const { return velocity_; }
 
 	void remove();
+
+	void playEffect();
+
 private:
     int damage_;
 	float velocity_;

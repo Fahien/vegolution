@@ -4,13 +4,16 @@ USING_NS_CC;
 
 // Constructor
 Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 offset)
-        : healthMax_{healthMax}, health_{static_cast<float>(healthMax)}, velocity_{static_cast<float>(velocity)},
+        : audioEngine_{nullptr}
+        ,healthMax_{healthMax}, health_{static_cast<float>(healthMax)}, velocity_{static_cast<float>(velocity)},
           delay_{delay}, bullet_{bullet}, offset_{offset}, tap_{Vec2::ZERO}, specificUpdate_{nullptr}, onTap_{nullptr} {
     scheduleUpdate();        // Adjusting velocity, rotation and specific updates
     if (!bullet_) return;    // End if no shot
 
     CallFunc *shot{CallFunc::create([this]() {
+        // Check for parent error
         if (bullet_->getParent() != nullptr) bullet_->removeFromParent();
+        // Spawn bullet one level above
         getParent()->addChild(bullet_);
         bullet_->setPosition(getPositionX() + offset_.x, getPositionY() + offset_.y);
         bullet_->setRotation(0.0f);
@@ -20,6 +23,8 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 of
         CallFunc *remove{CallFunc::create([this]() { bullet_->remove(); })};
         Sequence *sequence{Sequence::createWithTwoActions(time, remove)};
         bullet_->runAction(sequence);
+        // Play bullet sound
+        bullet_->playEffect();
     })};    // Shot the bullet
     DelayTime *time{DelayTime::create(delay_ * 0.25f)};    // And wait delay time
     Sequence *sequence{Sequence::createWithTwoActions(shot, time)};
@@ -27,16 +32,20 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 of
 }
 
 // Create method
-Vehicle *Vehicle::create(std::string vehiclename, int healthMax, int velocity, int delay, Bullet *bullet, Vec2 offset,
+Vehicle *Vehicle::create(std::string name, int healthMax, int velocity, int delay, Bullet *bullet, Vec2 offset,
                          bool gravity) {
     // Construct
     Vehicle *vehicle{new(std::nothrow) Vehicle{healthMax, velocity, delay, bullet, offset}};
 
-    std::string filename{StringUtils::format("vehicle/%s/%s0.png", vehiclename.c_str(), vehiclename.c_str())};
+    std::string filename{StringUtils::format("vehicle/%s/%s0.png", name.c_str(), name.c_str())};
     // Initialize
     if (vehicle && vehicle->initWithFile(filename)) {
-        vehicle->setName(vehiclename);
-        vehicle->createPhysicsBody(vehiclename);
+        // Load sound effect
+        std::string audioPath{ StringUtils::format("audio/%s.ogg", name.c_str()) };
+        CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect(audioPath.c_str());
+        // Set the name
+        vehicle->setName(name);
+        vehicle->createPhysicsBody(name);
         // Set gravity enable
         vehicle->physicsBody_->setGravityEnable(gravity);
         // Initialize with no dynamic
@@ -88,4 +97,12 @@ void Vehicle::update(float delta) {
         physicsBody_->setRotation(rotation);
     }
     if (specificUpdate_) specificUpdate_(delta);
+}
+
+void Vehicle::playEffect()
+{
+    if (audioEngine_ == nullptr) return;
+    // Play sound effect
+    std::string audioPath{ StringUtils::format("audio/%s.ogg", getName().c_str()) };
+    audioEngine_->playEffect(audioPath.c_str());
 }
