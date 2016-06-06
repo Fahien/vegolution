@@ -24,22 +24,25 @@ bool MainScene::init(DataManager* data) {
     if (!Scene::init()) return false;
     log("Initializing MainScene");
 
-    CocosDenshion::SimpleAudioEngine* audio {CocosDenshion::SimpleAudioEngine::getInstance()};
-    audio->preloadBackgroundMusic("audio/soundtrack.mp3");
-    audio->playBackgroundMusic("audio/soundtrack.mp3", true);
+    // If audio is on
+    if (data->getInteger("audio.status") == 1) {
+        // Get audio instance
+        CocosDenshion::SimpleAudioEngine *audio{CocosDenshion::SimpleAudioEngine::getInstance()};
+        // If the music is not playing, play it and loop
+        if (!audio->isBackgroundMusicPlaying()) {
+            audio->preloadBackgroundMusic("audio/soundtrack.mp3");
+            audio->playBackgroundMusic("audio/soundtrack.mp3", true);
+        }
+    }
 
     // Create a Layer
     Layer* layer { Layer::create() };
-
     // Create the MainFactory
     MainFactory factory{ data };
-
     // Get the background
     layer->addChild(factory.getBackground());
-
     // Get the menu
     layer->addChild(factory.getMenu());
-
     // Get the board
     layer->addChild(factory.getBoard());
 

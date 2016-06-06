@@ -166,10 +166,8 @@ void MainFactory::createMenu() {
         menu_->setLayoutType(ui::Layout::Type::VERTICAL);
         // Get the play text
         menu_->addChild(play_);
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        // Get the settings text
+       // Get the settings text
         menu_->addChild(settings_);
-#endif
         // Get the quit text
         menu_->addChild(quit_);
     }

@@ -4,16 +4,15 @@ USING_NS_CC;
 
 DataManager::DataManager()
 {
-    log("Costructing Data");
+    log("Costructing DataManager");
 }
 
 DataManager::~DataManager() {
-    log("Destructing Data");
+    log("Destructing DataManager");
 }
 
 // TODO Improve Android handling, init database, then open connection with an already initialized db
 int DataManager::open(sqlite3** db) {
-    log("Get fileUtils");
     FileUtils* fileUtils{ FileUtils::getInstance() };
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
     // In Android get a writable path
@@ -26,21 +25,16 @@ int DataManager::open(sqlite3** db) {
 	// return sqlite3_open_v2(path.c_str(), db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) == SQLITE_OK;
 	return sqlite3_open(path.c_str(), db);
 #else
-    log("Getting path");
 	std::string path{ fileUtils->fullPathForFilename("data.db") };
-    log("Searching database at %s", path.c_str());
     if (!fileUtils->isFileExist(path)) {
         log("Database does not exists at %s", path.c_str());
         Director::getInstance()->end();
     }
     // Open a connection
-    log("Opening data");
     int open_result{ sqlite3_open(path.c_str(), db) };
     // Check open error
     if (open_result != SQLITE_OK) {
         log("Could not open database file %d: %s", open_result, sqlite3_errmsg(*db));
-    } else {
-        log("Opening ok");
     }
     return open_result;
 #endif
@@ -240,7 +234,6 @@ Bullet* DataManager::getBullet(std::string& name, std::vector<Bullet*>& bullets)
 }
 
 std::string DataManager::getString(std::string key) {
-    log("Searching key %s", key.c_str());
     // Initialize variables
     std::string value{ "Unknown" };
 
@@ -281,7 +274,6 @@ std::string DataManager::getString(std::string key) {
 
 
 int DataManager::getInteger(std::string key) {
-    log("Searching key %s", key.c_str());
     // Initialize variables
     int value{ 0 };
 

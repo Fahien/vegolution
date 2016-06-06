@@ -22,7 +22,9 @@ protected:
 
     void createBoard();
 
-    void createResolutionRadio(DataManager* data);
+    void createResolution(DataManager* data);
+
+    void createAudio(DataManager* data);
 
     void createBackText(DataManager* data);
 
@@ -37,6 +39,7 @@ private:
 
     cocos2d::Sprite* background_;
     cocos2d::ui::Text* resolution_;
+    cocos2d::ui::Text* audio_;
     cocos2d::ui::Text* back_;
     cocos2d::ui::Layout* menu_;
     cocos2d::Sprite* board_;

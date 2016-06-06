@@ -4,7 +4,7 @@
 
 USING_NS_CC;
 
-static Size designSize{570, 320};
+static Size designSize{ 570, 320 };
 
 // Information about resources
 typedef struct tagResource {
@@ -17,21 +17,20 @@ typedef struct tagResource {
 } Resource;
 
 // Define all our resource types and locations
-static Resource largeResource{Size{1920, 1080}, Size{1024, 768}, "hd"};
-static Resource mediumResource{Size{1024, 768}, Size{750, 544}, "md"};
-static Resource smallResource{Size{480, 320}, Size{0, 0}, "sd"};
+static Resource largeResource{ Size{ 1920, 1080 }, Size{ 1024, 768 }, "hd" };
+static Resource mediumResource{ Size{ 1024, 768 }, Size{ 750, 544 }, "md" };
+static Resource smallResource{ Size{ 480, 320 }, Size{ 0, 0 }, "sd"};
 
 // Declare and array containing the resource descriptions, from largest to smallest
 static std::array<Resource, 3> resources{{largeResource, mediumResource, smallResource}};
 
 Vegolution::Vegolution()
-        : dataManager_{}, audio_{} {
+        : dataManager_{} {
     log("Creating Vegolution");
 }
 
 Vegolution::~Vegolution() {
     log("Destructing Vegolution");
-    //audio_.unload();
 }
 
 // If you want a different context, just modify the value of glContextAttrs
@@ -41,13 +40,6 @@ void Vegolution::initGLContextAttrs() {
     // red, green, blue, alpha, depth, stencil
     GLContextAttrs glContextAttrs{8, 8, 8, 8, 24, 8};
     GLView::setGLContextAttrs(glContextAttrs);
-}
-
-void Vegolution::initAudioFactory() {
-    // Get the audio engine
-    CocosDenshion::SimpleAudioEngine* audioEngine {CocosDenshion::SimpleAudioEngine::getInstance()};
-    // Initialize the AudioFactory
-    audio_.load(audioEngine);
 }
 
 // If you want to use packages manager to install more packages, 
@@ -142,7 +134,7 @@ void Vegolution::applicationWillEnterForeground() {
     CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 
     Scene* scene{ director->getRunningScene() };
-    if (scene->getTag() == 5) {
+    if (scene && scene->getTag() == 5) {
         static_cast<GameScene*>(scene)->willEnterForeground();
     }
 }
