@@ -91,7 +91,8 @@ void Enemy::remove()
 	if (getParent()) { removeFromParentAndCleanup(false); }
 }
 
-void Enemy::update(float delta) {
+void Enemy::update(float delta)
+{
 	// Walk to the main actor
 	if (physicsBody_->getVelocity().x > -velocity_) {
 		physicsBody_->applyForce(Vec2{ -velocity_, 0.0f });

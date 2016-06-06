@@ -1,4 +1,5 @@
 #include "Vegolution.h"
+#include "SimpleAudioEngine.h"
 #include "scene/SplashScene.h"
 #include "scene/GameScene.h"
 
@@ -31,6 +32,7 @@ Vegolution::Vegolution()
 
 Vegolution::~Vegolution() {
     log("Destructing Vegolution");
+    CocosDenshion::SimpleAudioEngine::getInstance()->end();
 }
 
 // If you want a different context, just modify the value of glContextAttrs

@@ -1,4 +1,5 @@
 #include "MainActor.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
@@ -17,6 +18,8 @@ MainActor *MainActor::create() {
     // Initialize
     if (actor && actor->init()) {
         actor->autorelease();
+        // Load game over sound effect
+        CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("audio/gameover.ogg");
         actor->scheduleUpdate();
     }
     else { CC_SAFE_DELETE(actor); } // Error
@@ -83,4 +86,6 @@ void MainActor::die() {
     vehicle_->setTexture("misc/celly-dead.png");
     vehicle_->removeAllComponents();
     vehicle_->createPhysicsBody("dead");
+    // Play sound effect
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("audio/gameover.ogg");
 }

@@ -35,6 +35,8 @@ private:
     DataManager* data_;
     GameFactory factory_;
     EnemyFactory enemyFactory_;
+    int score_{ 0 };
+	cocos2d::ui::Text* scoreText_{ nullptr };
 	cocos2d::Layer* menuLayer_{ nullptr };
 
 	MainActor* actor_{ nullptr };

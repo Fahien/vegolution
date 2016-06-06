@@ -3,15 +3,12 @@
 
 #include "Actor.h"
 #include "Bullet.h"
-#include "SimpleAudioEngine.h"
 
 class Vehicle : public Actor
 {
 public:
     Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, cocos2d::Vec2 offset);
     static Vehicle* create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet, cocos2d::Vec2 offset, bool gravity);
-
-    inline void setAudioEngine(CocosDenshion::SimpleAudioEngine* engine) { audioEngine_ = engine; }
 
     inline float getVelocity() const { return velocity_; }
 	inline int getHealthMax() const { return healthMax_; }
@@ -34,7 +31,6 @@ public:
 	void playEffect();
 
 private:
-    CocosDenshion::SimpleAudioEngine* audioEngine_;
 	int healthMax_;
 	float health_;
 	float velocity_;

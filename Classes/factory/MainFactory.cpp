@@ -1,4 +1,5 @@
 #include "MainFactory.h"
+#include "SimpleAudioEngine.h"
 #include "scene/GameScene.h"
 #include "scene/SettingsScene.h"
 
@@ -72,9 +73,14 @@ void MainFactory::createPlayText(std::string name, DataManager* data) {
                     break;
                 case ui::Widget::TouchEventType::ENDED :
                     target->runAction(ScaleTo::create(0.125f, 1.0f));
+                    // Create the GameScene
                     scene = GameScene::create(data);
+                    // Create a transition
                     transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
+                    // Replace the MenuScene with the GameScene
                     Director::getInstance()->replaceScene(transition);
+                    // Stop menu music
+                    CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic(true);
                     target->setTouchEnabled(false);
                     break;
                 case ui::Widget::TouchEventType::CANCELED :

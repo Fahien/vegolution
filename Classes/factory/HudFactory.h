@@ -1,20 +1,23 @@
 #ifndef __HUD_FACTORY_H__
 #define __HUD_FACTORY_H__
 
+#include "TextFactory.h"
 #include "model/MainActor.h"
 #include "hud/LeftGear.h"
 
 class HudFactory {
 public:
-    HudFactory(const cocos2d::Size visibleSize);
+    HudFactory(TextFactory& textFactory);
     ~HudFactory();
 
+    cocos2d::ui::Text* getScoreText();
     LeftGear* getLeftGear(MainActor* actor);
     RightGear* getRightGear(MainActor *actor);
 
 private:
-    const cocos2d::Size visibleSize_;
+    TextFactory textFactory_;
 
+    cocos2d::ui::Text* score_;
     RightGear* rightGear_;
     LeftGear* leftGear_;
 };

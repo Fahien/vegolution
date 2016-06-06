@@ -12,12 +12,9 @@ public:
 	/// Create method
     static Enemy* create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet, bool gravity, int y);
 
-	inline int getHealthMax() const { return healthMax_; }
-    inline int getHealth() const { return health_; }
-    inline void setHealth(int health) { health_ = health; }
+	inline void damage(int amount) { health_ -= amount; }
+	inline bool isDead() const { return health_ <= 0; }
 	inline float getVelocity() const { return velocity_; }
-	inline float getOffsetY() const { return offsetY_; }
-	inline Bullet* getBullet() const { return bullet_; }
 
 	/// Spawn an enemy
 	void spawn(cocos2d::Vec2 position);
@@ -25,6 +22,8 @@ public:
 	void update(float delta);
 	/// Properly remove
 	void remove();
+
+
 
 private:
 	int healthMax_;

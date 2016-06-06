@@ -4,7 +4,6 @@
 static const char *const version = "0.1";
 
 #include "cocos2d.h"
-#include "SimpleAudioEngine.h"
 #include "data/DataManager.h"
 
 /// @brief	The Vegolution Application
