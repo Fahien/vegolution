@@ -24,6 +24,7 @@ public:
 
     /// Create a base Text for Vegolution
     virtual cocos2d::ui::Text* createText(std::string text);
+    virtual cocos2d::ui::Text* createText(std::string text, float fontSize);
 private:
     cocos2d::Size visibleSize_;
     cocos2d::Vec2 origin_;

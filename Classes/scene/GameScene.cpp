@@ -112,6 +112,8 @@ void GameScene::willEnterForeground()
 {
     pause_ = false;
     _director->resume();
+    CocosDenshion::SimpleAudioEngine::getInstance()->resumeAllEffects();
+    menuLayer_->removeChildByName("Quit", false);
 }
 
 // Update method

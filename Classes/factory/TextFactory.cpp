@@ -33,7 +33,12 @@ void TextFactory::init(const DataManager& data)
 
 ui::Text* TextFactory::createText(std::string name)
 {
-    ui::Text* text{ ui::Text::create(name, fontPath_, fontSize_)};
+    return createText(name, fontSize_);
+}
+
+ui::Text* TextFactory::createText(std::string name, float fontSize)
+{
+    ui::Text* text{ ui::Text::create(name, fontPath_, fontSize)};
     text->setName(name);
     text->setContentSize(textContentSize_);
     text->setPositionX(-textContentSize_.width / 2.0f);
