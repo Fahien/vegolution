@@ -17,6 +17,7 @@ GameScene::GameScene(DataManager& data, TextFactory& textFactory)
 GameScene::~GameScene()
 {
     log("Destructing GameScene");
+	_eventDispatcher->removeEventListener(controller_);
 }
 
 GameScene* GameScene::create(DataManager& data, TextFactory& textFactory)
@@ -101,8 +102,8 @@ bool GameScene::init(DataManager& data, TextFactory& textFactory)
     listenEnemyBullet(data, textFactory);
 
     // Create the Game Controller
-    GameController* controller{ GameController::create(actor_, getContentSize()) };
-    _eventDispatcher->addEventListenerWithFixedPriority(controller, 1);
+    controller_ = GameController::create(actor_, getContentSize());
+    _eventDispatcher->addEventListenerWithFixedPriority(controller_, 1);
 
     return true;
 }

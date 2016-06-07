@@ -33,7 +33,6 @@ void HudFactory::createQuitText(DataManager& data, TextFactory& textFactory)
             [ &data, &textFactory ](cocos2d::Ref* sender, cocos2d::ui::Widget::TouchEventType type) {
                 ui::Text* target{ static_cast<ui::Text*>(sender) };
                 Scene* scene{ nullptr };
-                TransitionFade* transition{ nullptr };
                 switch (type) {
                     case ui::Widget::TouchEventType::BEGAN :
                         target->runAction(ScaleTo::create(0.125f, 1.25f));
@@ -41,9 +40,8 @@ void HudFactory::createQuitText(DataManager& data, TextFactory& textFactory)
                     case ui::Widget::TouchEventType::ENDED :
                         target->runAction(ScaleTo::create(0.125f, 1.0f));
                         scene = MainScene::create(data, textFactory);
-                        transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
+                        Director::getInstance()->replaceScene(scene);
                         Director::getInstance()->resume();
-                        Director::getInstance()->replaceScene(transition);
                         target->setTouchEnabled(false);
                         break;
                     case ui::Widget::TouchEventType::CANCELED :

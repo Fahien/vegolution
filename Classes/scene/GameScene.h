@@ -43,6 +43,7 @@ private:
     int score_{ 0 };
     cocos2d::ui::Text* scoreText_{ nullptr };
     cocos2d::Layer* menuLayer_{ nullptr };
+	GameController* controller_{ nullptr };
 
     MainActor* actor_{ nullptr };
     cocos2d::Sprite* board_{ nullptr };
