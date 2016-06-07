@@ -23,15 +23,15 @@ public:
     /// Load all enemies
     void loadEnemies(std::vector<Enemy*>& enemies, std::vector<Bullet*>& bullets);
 
-    std::string getString(std::string key);
-    int getInteger(std::string key);
+    std::string getString(std::string key) const;
+    int getInteger(std::string key) const;
     void saveInteger(std::string key, int value);
 
 protected:
     /// Open data connection
-    int open(sqlite3** db);
+    int open(sqlite3** db) const;
     /// Close data connection
-    void close(sqlite3* db);
+    void close(sqlite3* db) const;
 
 	/// Get a bullet
 	Bullet* getBullet(std::string& name, std::vector<Bullet*>& bullets);

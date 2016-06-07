@@ -7,7 +7,7 @@
 class EnemyFactory
 {
 public:
-	EnemyFactory(DataManager* data, std::vector<Bullet*>& bullets);
+	EnemyFactory(DataManager& data, std::vector<Bullet*>& bullets);
     ~EnemyFactory();
 
     Enemy* spawn(cocos2d::Vec2 position);

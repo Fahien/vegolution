@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-GameFactory::GameFactory(DataManager* data)
+GameFactory::GameFactory(DataManager& data)
         : visibleSize_{ Director::getInstance()->getVisibleSize() }
         , origin_{ Director::getInstance()->getVisibleOrigin() }
         , center_{ visibleSize_.width / 2.0f + origin_.x, visibleSize_.height / 2.0f + origin_.y }
@@ -16,8 +16,8 @@ GameFactory::GameFactory(DataManager* data)
         , explosion_{ nullptr }
 {
     log("Creating GameFactory");
-    data->loadBullets(bullets_);
-    data->loadVehicles(vehicles_, bullets_);
+    data.loadBullets(bullets_);
+    data.loadVehicles(vehicles_, bullets_);
 }
 
 GameFactory::~GameFactory()

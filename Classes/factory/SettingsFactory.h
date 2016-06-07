@@ -4,10 +4,11 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 #include "data/DataManager.h"
+#include "TextFactory.h"
 
 class SettingsFactory {
 public:
-    SettingsFactory(DataManager* data);
+    SettingsFactory(DataManager& data, TextFactory& textFactory);
 
     inline cocos2d::Sprite* const getBackground() { return background_; }
 
@@ -16,27 +17,19 @@ public:
     inline cocos2d::Sprite* getBoard() { return board_; }
 
 protected:
-    void createBackground();
+    void createBackground(cocos2d::Size& visibleSize);
 
-    void createMenu();
+    void createMenu(cocos2d::Vec2& center);
 
-    void createBoard();
+    void createBoard(cocos2d::Size& visibleSize);
 
-    void createResolution(DataManager* data);
+    void createResolution(TextFactory& textFactory, DataManager& data);
 
-    void createAudio(DataManager* data);
+    void createAudio(TextFactory& textFactory, DataManager& data);
 
-    void createBackText(DataManager* data);
+    void createBackText(std::string name, TextFactory& textFactory, DataManager& data);
 
 private:
-    cocos2d::Size visibleSize_;
-    std::string fontPath_;
-    float fontSize_;
-    cocos2d::Size textContentSize_;
-    cocos2d::ui::LinearLayoutParameter* layout_;
-    cocos2d::Size shadowOffset_;
-    int shadowBlur_;
-
     cocos2d::Sprite* background_;
     cocos2d::ui::Text* resolution_;
     cocos2d::ui::Text* audio_;

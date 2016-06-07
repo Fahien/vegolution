@@ -5,6 +5,7 @@ static const char *const version = "0.1";
 
 #include "cocos2d.h"
 #include "data/DataManager.h"
+#include "factory/TextFactory.h"
 
 /// @brief	The Vegolution Application
 /// The reason for implement as private inheritance is to hide some interface call by Director.
@@ -33,6 +34,7 @@ public:
 
 private:
     DataManager dataManager_;
+    TextFactory textFactory_;
 };
 
 #endif // __VEGOLUTION_H__

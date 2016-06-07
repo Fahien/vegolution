@@ -4,30 +4,34 @@
 
 USING_NS_CC;
 
-MainScene::MainScene() {
+MainScene::MainScene()
+{
     log("Constructing MainScene");
 }
 
-MainScene::~MainScene() {
+MainScene::~MainScene()
+{
     log("Destructing MainScene");
 }
 
-MainScene* MainScene::create(DataManager* data) {
-    MainScene* scene{ new(std::nothrow) MainScene{} }; // Construct
-    if (scene && scene->init(data)) { scene->autorelease(); } // Initialize
+MainScene* MainScene::create(DataManager& data, TextFactory& textFactory)
+{
+    MainScene* scene{ new(std::nothrow) MainScene{ }}; // Construct
+    if (scene && scene->init(data, textFactory)) { scene->autorelease(); } // Initialize
     else { CC_SAFE_DELETE(scene); }
     return scene;
 }
 
-bool MainScene::init(DataManager* data) {
+bool MainScene::init(DataManager& data, TextFactory& textFactory)
+{
     // Super init first
     if (!Scene::init()) return false;
     log("Initializing MainScene");
 
     // If audio is on
-    if (data->getInteger("audio.status") == 1) {
+    if (data.getInteger("audio.status") == 1) {
         // Get audio instance
-        CocosDenshion::SimpleAudioEngine *audio{CocosDenshion::SimpleAudioEngine::getInstance()};
+        CocosDenshion::SimpleAudioEngine* audio{ CocosDenshion::SimpleAudioEngine::getInstance() };
         // If the music is not playing, play it and loop
         if (!audio->isBackgroundMusicPlaying()) {
             audio->preloadBackgroundMusic("audio/soundtrack.mp3");
@@ -36,9 +40,9 @@ bool MainScene::init(DataManager* data) {
     }
 
     // Create a Layer
-    Layer* layer { Layer::create() };
+    Layer* layer{ Layer::create() };
     // Create the MainFactory
-    MainFactory factory{ data };
+    MainFactory factory{ data, textFactory };
     // Get the background
     layer->addChild(factory.getBackground());
     // Get the menu

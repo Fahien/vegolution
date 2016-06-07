@@ -7,16 +7,27 @@
 
 class HudFactory {
 public:
-    HudFactory(TextFactory& textFactory);
+    HudFactory(DataManager& data, TextFactory& textFactory);
+
     ~HudFactory();
 
-    cocos2d::ui::Text* getScoreText();
-    LeftGear* getLeftGear(MainActor* actor);
-    RightGear* getRightGear(MainActor *actor);
+    cocos2d::ui::Text* getScoreText()
+    { return score_; }
+
+    cocos2d::ui::Text* getQuitText()
+    { return quit_; };
+
+    LeftGear* getLeftGear(MainActor* actor, cocos2d::Size& visibleSize);
+
+    RightGear* getRightGear(MainActor* actor, cocos2d::Size& visibleSize);
+
+protected:
+    void createQuitText(DataManager& data, TextFactory& textFactory);
+
+    void createScoreText(TextFactory& textFactory);
 
 private:
-    TextFactory textFactory_;
-
+    cocos2d::ui::Text* quit_;
     cocos2d::ui::Text* score_;
     RightGear* rightGear_;
     LeftGear* leftGear_;

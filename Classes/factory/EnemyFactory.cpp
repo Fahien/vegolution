@@ -2,10 +2,10 @@
 
 USING_NS_CC;
 
-EnemyFactory::EnemyFactory(DataManager* data, std::vector<Bullet*>& bullets)
+EnemyFactory::EnemyFactory(DataManager& data, std::vector<Bullet*>& bullets)
 {
     log("Creating EnemyFactory");
-	data->loadEnemies(enemies_, bullets);
+	data.loadEnemies(enemies_, bullets);
 	for (Enemy* enemy : enemies_) { enemyPool_.push_back(enemy); }	// Fill enemy pool
 }
 

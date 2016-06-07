@@ -20,55 +20,58 @@ typedef struct tagResource {
 // Define all our resource types and locations
 static Resource largeResource{ Size{ 1920, 1080 }, Size{ 1024, 768 }, "hd" };
 static Resource mediumResource{ Size{ 1024, 768 }, Size{ 750, 544 }, "md" };
-static Resource smallResource{ Size{ 480, 320 }, Size{ 0, 0 }, "sd"};
+static Resource smallResource{ Size{ 480, 320 }, Size{ 0, 0 }, "sd" };
 
 // Declare and array containing the resource descriptions, from largest to smallest
-static std::array<Resource, 3> resources{{largeResource, mediumResource, smallResource}};
+static std::array<Resource, 3> resources{{ largeResource, mediumResource, smallResource }};
 
 Vegolution::Vegolution()
-        : dataManager_{} {
+{
     log("Creating Vegolution");
 }
 
-Vegolution::~Vegolution() {
+Vegolution::~Vegolution()
+{
     log("Destructing Vegolution");
     CocosDenshion::SimpleAudioEngine::getInstance()->end();
 }
 
 // If you want a different context, just modify the value of glContextAttrs
 // it will takes effect on all platforms
-void Vegolution::initGLContextAttrs() {
+void Vegolution::initGLContextAttrs()
+{
     // Set OpenGL context attributions, now can only set six attributions:
     // red, green, blue, alpha, depth, stencil
-    GLContextAttrs glContextAttrs{8, 8, 8, 8, 24, 8};
+    GLContextAttrs glContextAttrs{ 8, 8, 8, 8, 24, 8 };
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
 // If you want to use packages manager to install more packages, 
 // don't modify or remove this function
-static int register_all_packages() {
+static int register_all_packages()
+{
     return 0; //flag for packages manager
 }
 
 // Hook method for application did finish launching
-bool Vegolution::applicationDidFinishLaunching() {
+bool Vegolution::applicationDidFinishLaunching()
+{
     // Get Director instance
     Director* director{ Director::getInstance() };
     // Get FileUtils instance
     FileUtils* fileUtils{ FileUtils::getInstance() };
 
-    // Initialize the DataManager
-    log("Initializing data");
+    // Load window size
     float width{ static_cast<float>(dataManager_.getInteger("window.width")) };
     float height{ static_cast<float>(dataManager_.getInteger("window.height")) };
     Size windowSize{ width, height };
 
     log("Initializing View");
     // Initialize director
-    GLView *glView{director->getOpenGLView()};
+    GLView* glView{ director->getOpenGLView() };
     if (!glView) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glView = GLViewImpl::createWithRect("Vegolution", Rect{0, 0, windowSize.width, windowSize.height});
+        glView = GLViewImpl::createWithRect("Vegolution", Rect{ 0, 0, windowSize.width, windowSize.height });
 #else
         glView = GLViewImpl::create("Vegolution");
 #endif
@@ -112,7 +115,7 @@ bool Vegolution::applicationDidFinishLaunching() {
     register_all_packages();
 
     // Create the main scene. it's an autorelease object
-    Scene* scene{ SplashScene::create(&dataManager_) };
+    Scene* scene{ SplashScene::create(dataManager_, textFactory_) };
 
     // Run now!
     director->runWithScene(scene);
@@ -120,20 +123,26 @@ bool Vegolution::applicationDidFinishLaunching() {
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void Vegolution::applicationDidEnterBackground() {
+void Vegolution::applicationDidEnterBackground()
+{
     Director::getInstance()->stopAnimation();
 
     // if you use SimpleAudioEngine, it must be pause
-    CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+    CocosDenshion::SimpleAudioEngine* audioEngine{ CocosDenshion::SimpleAudioEngine::getInstance() };
+    audioEngine->pauseBackgroundMusic();
+    audioEngine->pauseAllEffects();
 }
 
 // This function will be called when the app is active again
-void Vegolution::applicationWillEnterForeground() {
+void Vegolution::applicationWillEnterForeground()
+{
     Director* director{ Director::getInstance() };
     director->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here
-    CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+    CocosDenshion::SimpleAudioEngine* audioEngine{ CocosDenshion::SimpleAudioEngine::getInstance() };
+    audioEngine->resumeBackgroundMusic();
+    audioEngine->resumeAllEffects();
 
     Scene* scene{ director->getRunningScene() };
     if (scene && scene->getTag() == 5) {

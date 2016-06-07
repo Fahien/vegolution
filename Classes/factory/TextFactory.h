@@ -7,7 +7,9 @@
 
 class TextFactory {
 public:
-    TextFactory(DataManager* data);
+    TextFactory();
+    ~TextFactory();
+    void init(const DataManager& data);
 
     inline cocos2d::Size& getVisibleSize() { return visibleSize_; }
     inline cocos2d::Vec2& getOrigin() { return origin_; }

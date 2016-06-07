@@ -4,7 +4,7 @@
 USING_NS_CC;
 
 // Constructor
-Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 offset)
+Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet* bullet, Vec2 offset)
         : healthMax_{ healthMax }
         , health_{ static_cast<float>(healthMax) }
         , velocity_{ static_cast<float>(velocity) }
@@ -18,7 +18,7 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 of
     scheduleUpdate();        // Adjusting velocity, rotation and specific updates
     if (!bullet_) return;    // End if no shot
 
-    CallFunc *shot{ CallFunc::create([ this ]() {
+    CallFunc* shot{ CallFunc::create([ this ]() {
         // Check for parent error
         if (bullet_->getParent() != nullptr) bullet_->removeFromParent();
         // Spawn bullet one level above
@@ -27,24 +27,24 @@ Vehicle::Vehicle(int healthMax, int velocity, int delay, Bullet *bullet, Vec2 of
         bullet_->setRotation(0.0f);
         bullet_->getPhysicsBody()->setVelocity(Vec2::ZERO);
         bullet_->getPhysicsBody()->applyImpulse(Vec2{ bullet_->getVelocity(), 0.0f });
-        DelayTime *time{ DelayTime::create(delay_ * 0.25f) };
-        CallFunc *remove{ CallFunc::create([ this ]() { bullet_->remove(); }) };
-        Sequence *sequence{ Sequence::createWithTwoActions(time, remove) };
+        DelayTime* time{ DelayTime::create(delay_ * 0.25f) };
+        CallFunc* remove{ CallFunc::create([ this ]() { bullet_->remove(); }) };
+        Sequence* sequence{ Sequence::createWithTwoActions(time, remove) };
         bullet_->runAction(sequence);
         // Play bullet sound
         bullet_->playEffect();
     }) };    // Shot the bullet
-    DelayTime *time{ DelayTime::create(delay_ * 0.25f) };    // And wait delay time
-    Sequence *sequence{ Sequence::createWithTwoActions(shot, time) };
+    DelayTime* time{ DelayTime::create(delay_ * 0.25f) };    // And wait delay time
+    Sequence* sequence{ Sequence::createWithTwoActions(shot, time) };
     runAction(RepeatForever::create(sequence));
 }
 
 // Create method
-Vehicle *Vehicle::create(std::string name, int healthMax, int velocity, int delay, Bullet *bullet, Vec2 offset,
+Vehicle* Vehicle::create(std::string name, int healthMax, int velocity, int delay, Bullet* bullet, Vec2 offset,
                          bool gravity)
 {
     // Construct
-    Vehicle *vehicle{ new(std::nothrow) Vehicle{ healthMax, velocity, delay, bullet, offset }};
+    Vehicle* vehicle{ new(std::nothrow) Vehicle{ healthMax, velocity, delay, bullet, offset }};
 
     std::string filename{ StringUtils::format("vehicle/%s/%s0.png", name.c_str(), name.c_str()) };
     // Initialize
@@ -91,7 +91,7 @@ void Vehicle::stop()
     }
 }
 
-void Vehicle::tap(Vec2 &location)
+void Vehicle::tap(Vec2& location)
 {
     tap_ = location;
     if (onTap_) onTap_(location);
@@ -118,5 +118,10 @@ void Vehicle::playEffect()
 {
     // Play sound effect
     std::string audioPath{ StringUtils::format("audio/%s.ogg", getName().c_str()) };
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(audioPath.c_str());
+    effectId_ = CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(audioPath.c_str(), true);
+}
+
+void Vehicle::stopEffect()
+{
+    CocosDenshion::SimpleAudioEngine::getInstance()->stopEffect(effectId_);
 }

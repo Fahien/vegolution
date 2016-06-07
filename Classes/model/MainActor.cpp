@@ -18,7 +18,7 @@ MainActor *MainActor::create() {
     // Initialize
     if (actor && actor->init()) {
         actor->autorelease();
-        // Load game over sound effect
+        // Load controller over sound effect
         CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("audio/gameover.ogg");
         actor->scheduleUpdate();
     }
@@ -59,6 +59,7 @@ bool MainActor::switchVehicle() {
         // Remove old vehicle
         vehicle_->getPhysicsBody()->resetForces();
         vehicle_->getPhysicsBody()->setDynamic(false);
+        vehicle_->stopEffect();
         vehicle_->pause();
         removeChild(vehicle_, false);
         vehicles_.push_back(vehicle_);

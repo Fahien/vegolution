@@ -1,33 +1,73 @@
 #include "HudFactory.h"
+#include "scene/MainScene.h"
 
 USING_NS_CC;
 
-HudFactory::HudFactory(TextFactory &textFactory)
-        : textFactory_{ textFactory }
+HudFactory::HudFactory(DataManager& data, TextFactory& textFactory)
+        : quit_{ nullptr }
         , score_{ nullptr }
         , rightGear_{ nullptr }
         , leftGear_{ nullptr }
 {
     log("Creating HudFactory");
+    createScoreText(textFactory);
+    createQuitText(data, textFactory);
 }
 
 HudFactory::~HudFactory()
-{ }
-
-cocos2d::ui::Text *HudFactory::getScoreText()
 {
-    if (score_ == nullptr) {
-        log("Creating score text");
-        std::string text{ "0" };
-        score_ = textFactory_.createText(text);
-        score_->setAnchorPoint(Vec2{0.5f, 1.0f});
-        Vec2 position{ textFactory_.getCenter().x, textFactory_.getVisibleSize().height };
-        score_->setPosition(position);
-    }
-    return score_;
+    log("Destructing HudFactory");
+    // Release retained resources
+    quit_->release();
 }
 
-LeftGear *HudFactory::getLeftGear(MainActor *actor)
+void HudFactory::createQuitText(DataManager& data, TextFactory& textFactory)
+{
+    log("Creating quit text");
+    std::string name{ "Quit" };
+    quit_ = textFactory.createText(name);
+    quit_->retain();
+    quit_->setPosition(textFactory.getCenter());
+    quit_->setTouchEnabled(true);
+    quit_->addTouchEventListener(
+            [ &data, &textFactory ](cocos2d::Ref* sender, cocos2d::ui::Widget::TouchEventType type) {
+                ui::Text* target{ static_cast<ui::Text*>(sender) };
+                Scene* scene{ nullptr };
+                TransitionFade* transition{ nullptr };
+                switch (type) {
+                    case ui::Widget::TouchEventType::BEGAN :
+                        target->runAction(ScaleTo::create(0.125f, 1.25f));
+                        break;
+                    case ui::Widget::TouchEventType::ENDED :
+                        target->runAction(ScaleTo::create(0.125f, 1.0f));
+                        scene = MainScene::create(data, textFactory);
+                        transition = TransitionFade::create(0.5f, scene, Color3B::BLACK);
+                        Director::getInstance()->resume();
+                        Director::getInstance()->replaceScene(transition);
+                        target->setTouchEnabled(false);
+                        break;
+                    case ui::Widget::TouchEventType::CANCELED :
+                        target->runAction(ScaleTo::create(0.125f, 1.0f));
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+    );
+}
+
+void HudFactory::createScoreText(TextFactory& textFactory)
+{
+    log("Creating score text");
+    std::string text{ "0" };
+    score_ = textFactory.createText(text);
+    score_->setAnchorPoint(Vec2{ 0.5f, 1.0f });
+    Vec2 position{ textFactory.getCenter().x, textFactory.getVisibleSize().height };
+    score_->setPosition(position);
+}
+
+LeftGear* HudFactory::getLeftGear(MainActor* actor, Size& visibleSize)
 {
     if (leftGear_ == nullptr) {
         log("Creating left gear");
@@ -36,11 +76,11 @@ LeftGear *HudFactory::getLeftGear(MainActor *actor)
         actor->addGear(leftGear_);
         // Update texture now according to the vehicle
         leftGear_->onVehicleChange(actor->getVehicle());
-        leftGear_->setPositionY(textFactory_.getVisibleSize().height);
+        leftGear_->setPositionY(visibleSize.height);
         leftGear_->setAnchorPoint(Vec2{ 0.0f, 1.0f });
         leftGear_->setTouchEnabled(true);
         leftGear_->addTouchEventListener(
-                [ actor ](cocos2d::Ref *sender, cocos2d::ui::Widget::TouchEventType type) {
+                [ actor ](cocos2d::Ref* sender, cocos2d::ui::Widget::TouchEventType type) {
                     if (type == ui::Widget::TouchEventType::ENDED) { actor->switchVehicle(); }
                     return true;
                 }
@@ -49,7 +89,7 @@ LeftGear *HudFactory::getLeftGear(MainActor *actor)
     return leftGear_;
 }
 
-RightGear *HudFactory::getRightGear(MainActor *actor)
+RightGear* HudFactory::getRightGear(MainActor* actor, Size& visibleSize)
 {
     if (rightGear_ == nullptr) {
         log("Creating right gear");
@@ -60,14 +100,13 @@ RightGear *HudFactory::getRightGear(MainActor *actor)
         actor->addGear(rightGear_);
         std::string filename{ "hud/right-gear.png" };
         rightGear_->loadTexture(filename);
-        Size visibleSize{ textFactory_.getVisibleSize() };
         rightGear_->setPositionY(visibleSize.height);
         rightGear_->setPositionX(visibleSize.width);
         rightGear_->setAnchorPoint(Vec2{ 1.0f, 1.0f });
         rightGear_->setTouchEnabled(true);
         // Load health
         filename = std::string{ "hud/right-gear-health.png" };
-        Sprite *health{ Sprite::create(filename) };
+        Sprite* health{ Sprite::create(filename) };
         Size size{ rightGear_->getContentSize() };
         health->setPosition(Vec2{ size.width / 6.0f, size.height });
         health->setAnchorPoint(Vec2{ 0.0f, 1.0f });
@@ -76,7 +115,7 @@ RightGear *HudFactory::getRightGear(MainActor *actor)
 
         // Load energy
         filename = std::string{ "hud/right-gear-energy.png" };
-        Sprite *energy{ Sprite::create(filename) };
+        Sprite* energy{ Sprite::create(filename) };
         energy->setPosition(Vec2{ size.width, size.height });
         energy->setAnchorPoint(Vec2{ 1.0f, 1.0f });
         rightGear_->addChild(energy, -1);

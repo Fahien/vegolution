@@ -15,7 +15,7 @@
 class GameFactory
 {
 public:
-    GameFactory(DataManager* data);
+    GameFactory(DataManager& data);
     ~GameFactory();
 
     MainActor* createActor();
