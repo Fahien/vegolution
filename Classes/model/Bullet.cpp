@@ -16,7 +16,11 @@ Bullet *Bullet::create(std::string name, int damage, float velocity)
     std::string filename{ StringUtils::format("bullet/%s.png", name.c_str()) };
     if (bullet && bullet->initWithFile(filename)) {
         // Load sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+        std::string audioPath{ StringUtils::format("audio/%s.wav", name.c_str()) };
+#else
         std::string audioPath{ StringUtils::format("audio/%s.ogg", name.c_str()) };
+#endif
         CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect(audioPath.c_str());
         bullet->setName(name);
         bullet->setTag(8);
@@ -50,6 +54,10 @@ void Bullet::remove()
 void Bullet::playEffect()
 {
     // Play sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+    std::string audioPath{ StringUtils::format("audio/%s.wav", getName().c_str()) };
+#else
     std::string audioPath{ StringUtils::format("audio/%s.ogg", getName().c_str()) };
+#endif
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(audioPath.c_str());
 }

@@ -50,7 +50,11 @@ Vehicle* Vehicle::create(std::string name, int healthMax, int velocity, int dela
     // Initialize
     if (vehicle && vehicle->initWithFile(filename)) {
         // Load sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+        std::string audioPath{ StringUtils::format("audio/%s.wav", name.c_str()) };
+#else
         std::string audioPath{ StringUtils::format("audio/%s.ogg", name.c_str()) };
+#endif
         CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect(audioPath.c_str());
         // Set the name
         vehicle->setName(name);
@@ -117,7 +121,11 @@ void Vehicle::update(float delta)
 void Vehicle::playEffect()
 {
     // Play sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+    std::string audioPath{ StringUtils::format("audio/%s.wav", getName().c_str()) };
+#else
     std::string audioPath{ StringUtils::format("audio/%s.ogg", getName().c_str()) };
+#endif
     effectId_ = CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(audioPath.c_str(), true);
 }
 

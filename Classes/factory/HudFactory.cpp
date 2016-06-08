@@ -1,5 +1,6 @@
 #include "HudFactory.h"
 #include "scene/MainScene.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
@@ -40,6 +41,7 @@ void HudFactory::createQuitText(DataManager& data, TextFactory& textFactory)
                     case ui::Widget::TouchEventType::ENDED :
                         target->runAction(ScaleTo::create(0.125f, 1.0f));
                         scene = MainScene::create(data, textFactory);
+                        CocosDenshion::SimpleAudioEngine::getInstance()->stopAllEffects();
                         Director::getInstance()->replaceScene(scene);
                         Director::getInstance()->resume();
                         target->setTouchEnabled(false);

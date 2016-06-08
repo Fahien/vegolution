@@ -86,11 +86,13 @@ bool GameScene::init(DataManager& data, TextFactory& textFactory)
                     pause_ = !pause_;
                     if (pause_) {
                         _director->pause();
+                        CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
                         CocosDenshion::SimpleAudioEngine::getInstance()->pauseAllEffects();
                         menuLayer_->addChild(hudFactory_.getQuitText(), -4);
                     }
                     else {
                         _director->resume();
+                        CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
                         CocosDenshion::SimpleAudioEngine::getInstance()->resumeAllEffects();
                         menuLayer_->removeChildByName("Quit", false);
                     }
@@ -222,6 +224,8 @@ void GameScene::listenEnemyBullet(DataManager& data, TextFactory& textFactory)
             CallFunc* remove{ CallFunc::create([ this, &data, &textFactory ]() {
                 if (actor_->getHealth() <= 0) {
                     if (actor_->getVehicles().empty()) {
+                        CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
+                        CocosDenshion::SimpleAudioEngine::getInstance()->stopAllEffects();
                         actor_->die(); // Die
                         _eventDispatcher->removeAllEventListeners(); // Remove controller controller
                         DelayTime* delay{ DelayTime::create(2.0f) }; // Wait a delay

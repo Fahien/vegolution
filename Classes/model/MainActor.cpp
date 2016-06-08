@@ -19,7 +19,11 @@ MainActor *MainActor::create() {
     if (actor && actor->init()) {
         actor->autorelease();
         // Load controller over sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+        CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("audio/gameover.wav");
+#else
         CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("audio/gameover.ogg");
+#endif
         actor->scheduleUpdate();
     }
     else { CC_SAFE_DELETE(actor); } // Error
@@ -77,6 +81,7 @@ bool MainActor::switchVehicle() {
 }
 
 void MainActor::update(float delta) {
+    CC_UNUSED_PARAM(delta);
     if (moving_) { vehicle_->move(); }
     else { vehicle_->stop(); }
 }
@@ -88,5 +93,9 @@ void MainActor::die() {
     vehicle_->removeAllComponents();
     vehicle_->createPhysicsBody("dead");
     // Play sound effect
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("audio/gameover.wav");
+#else
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("audio/gameover.ogg");
+#endif
 }
