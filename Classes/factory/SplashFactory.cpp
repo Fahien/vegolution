@@ -7,6 +7,7 @@ USING_NS_CC;
 SplashFactory::SplashFactory()
         : rfpGlow_{ nullptr }
         , rfpLogo_{ nullptr }
+        , vegLogo_{ nullptr }
         , earth_{ nullptr }
         , board_{ nullptr }
         , layout_{ nullptr }
@@ -17,34 +18,56 @@ SplashFactory::SplashFactory()
 SplashFactory::~SplashFactory()
 {
     if (layout_) layout_->release();
+    if (vegLogo_) vegLogo_->release();
 }
 
 void SplashFactory::createRFPGlow(Vec2& center)
 {
+    log("Creating RFP glow");
     std::string glowName{ "splash/rfp-glow.png" };
     rfpGlow_ = Sprite::create(glowName);
     rfpGlow_->setPosition(center);
-    FadeOut* fadeOut{ FadeOut::create(0.0f) };
-    FadeIn* fadeIn{ FadeIn::create(2.0f) };
+    rfpGlow_->setOpacity(0);
+    FadeIn* fadeIn{ FadeIn::create(1.0f) };
+    FadeOut* fadeOut{ FadeOut::create(1.0f) };
     RemoveSelf* remove{ RemoveSelf::create(true) };
-    Sequence* sequence{ Sequence::create(fadeOut, fadeIn, remove, nullptr) };
+    Sequence* sequence{ Sequence::create(fadeIn, fadeOut, remove, nullptr) };
     rfpGlow_->runAction(sequence);
 }
 
 void SplashFactory::createRFPLogo(Vec2& center)
 {
+    log("Creating RFP logo");
     std::string rfpName{ "splash/rfp.png" };
     rfpLogo_ = Sprite::create(rfpName);
     rfpLogo_->setPosition(center);
-    FadeOut* fadeOut{ FadeOut::create(0.0f) };
-    FadeIn* fadeIn{ FadeIn::create(2.0f) };
+    rfpLogo_->setOpacity(0);
+    FadeIn* fadeIn{ FadeIn::create(1.0f) };
+    FadeOut* fadeOut{ FadeOut::create(1.0f) };
     RemoveSelf* remove{ RemoveSelf::create(true) };
-    Sequence* sequence{ Sequence::create(fadeOut, fadeIn, remove, nullptr) };
+    Sequence* sequence{ Sequence::create(fadeIn, fadeOut, remove, nullptr) };
     rfpLogo_->runAction(sequence);
+}
+
+
+void SplashFactory::createVegolutionLogo(Vec2& center)
+{
+    log("Creating Vegolution logo");
+    std::string vegName{ "splash/vegolution.png" };
+    vegLogo_ = Sprite::create(vegName);
+    vegLogo_->retain();
+    vegLogo_->setPosition(center);
+    vegLogo_->setOpacity(0);
+    FadeIn* fadeIn{ FadeIn::create(2.0f) };
+    FadeOut* fadeOut{ FadeOut::create(2.0f) };
+    RemoveSelf* remove{ RemoveSelf::create(true) };
+    Sequence* sequence{ Sequence::create(fadeIn, fadeOut, remove, nullptr) };
+    vegLogo_->runAction(sequence);
 }
 
 void SplashFactory::createEarth(Size& visibleSize, Vec2& center)
 {
+    log("Creating earth");
     std::string earthName{ "splash/earth-l.png" };
     earth_ = Sprite::create(earthName);
     float scaleX{ visibleSize.width / earth_->getContentSize().width };
@@ -64,6 +87,7 @@ void SplashFactory::createBoard(Size& visibleSize, Vec2& center)
 
 void SplashFactory::createLayout(Size& visibleSize, DataManager& data, TextFactory& text)
 {
+    log("Creating Splash layout");
     layout_ = ui::Layout::create();
     layout_->retain();
     layout_->setContentSize(Size{ visibleSize.width, visibleSize.height * 4.0f / 5.0f });
@@ -102,6 +126,7 @@ void SplashFactory::createLayout(Size& visibleSize, DataManager& data, TextFacto
 
 void SplashFactory::createStory(DataManager& data, TextFactory& text)
 {
+    log("Creating story");
     std::string story{ };
     for (int i{ 5 }; i > 0; --i) {
         std::string key = StringUtils::format("story.%d", i);
@@ -115,10 +140,12 @@ void SplashFactory::createStory(DataManager& data, TextFactory& text)
 
 Sequence* SplashFactory::createSequence(DataManager& data, TextFactory& text)
 {
+    log("Creating Splash sequence");
     Size visibleSize { text.getVisibleSize() };
     Vec2 center{ text.getCenter() };
     createRFPGlow(center);
     createRFPLogo(center);
+    createVegolutionLogo(center);
     createEarth(visibleSize, center);
     createBoard(visibleSize,center);
 
@@ -130,8 +157,10 @@ Sequence* SplashFactory::createSequence(DataManager& data, TextFactory& text)
             AddChild::create(rfpGlow_),
             AddChild::create(rfpLogo_),
             DelayTime::create(2.0f),
+            AddChild::create(vegLogo_),
+            DelayTime::create(4.0f),
             AddChild::create(earth_),
-            DelayTime::create(2.0f),
+            DelayTime::create(1.0f),
             AddChild::create(layout_),
             nullptr);
 }

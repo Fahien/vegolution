@@ -34,8 +34,9 @@ bool MainScene::init(DataManager& data, TextFactory& textFactory)
         CocosDenshion::SimpleAudioEngine* audio{ CocosDenshion::SimpleAudioEngine::getInstance() };
         // If the music is not playing, play it and loop
         if (!audio->isBackgroundMusicPlaying()) {
-            audio->preloadBackgroundMusic("audio/soundtrack.mp3");
-            audio->playBackgroundMusic("audio/soundtrack.mp3", true);
+            audio->preloadBackgroundMusic("audio/menu.mp3");
+            audio->setBackgroundMusicVolume(1.0f);
+            audio->playBackgroundMusic("audio/menu.mp3", true);
         }
     }
 

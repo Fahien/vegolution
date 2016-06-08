@@ -15,6 +15,7 @@ public:
 protected:
     void createRFPGlow(cocos2d::Vec2& center);
     void createRFPLogo(cocos2d::Vec2& center);
+    void createVegolutionLogo(cocos2d::Vec2& center);
     void createEarth(cocos2d::Size& visibleSize, cocos2d::Vec2& center);
     void createBoard(cocos2d::Size& visibleSize, cocos2d::Vec2& center);
 
@@ -28,6 +29,7 @@ protected:
 private:
     cocos2d::Sprite* rfpGlow_;
     cocos2d::Sprite* rfpLogo_;
+    cocos2d::Sprite* vegLogo_;
     cocos2d::Sprite* earth_;
     cocos2d::Sprite* board_;
 

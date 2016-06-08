@@ -33,6 +33,17 @@ bool GameScene::init(DataManager& data, TextFactory& textFactory)
     // Super init first
     if (!Scene::initWithPhysics()) return false;
 
+    // If audio is on
+    if (data.getInteger("audio.status") == 1) {
+        // Get audio instance
+        CocosDenshion::SimpleAudioEngine* audio{ CocosDenshion::SimpleAudioEngine::getInstance() };
+        // If the music is not playing, play it and loop
+        audio->stopBackgroundMusic(true);
+        audio->preloadBackgroundMusic("audio/soundtrack.mp3");
+        audio->setBackgroundMusicVolume(0.5f);
+        audio->playBackgroundMusic("audio/soundtrack.mp3", true);
+    }
+
     _physicsWorld->setAutoStep(false);
     scheduleUpdateWithPriority(-8);
     setTag(5);
